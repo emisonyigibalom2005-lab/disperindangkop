@@ -125,15 +125,20 @@ class UserController extends Controller
     {
         $user = auth()->user();
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,'.$user->id,
-            'phone'    => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|unique:users,email,'.$user->id,
+            'phone'         => 'nullable|string|max:20',
+            'password'      => 'nullable|string|min:8|confirmed',
+            'profile_photo' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         ]);
 
         $data = $request->only(['name','email','phone']);
         if ($request->hasFile('profile_photo')) {
-            if ($user->profile_photo) \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
+            // Hapus foto lama jika ada
+            if ($user->profile_photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo);
+            }
+            // Upload foto baru
             $data['profile_photo'] = $request->file('profile_photo')->store('foto_profil','public');
         }
         if ($request->filled('password')) {

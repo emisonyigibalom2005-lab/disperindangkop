@@ -249,7 +249,7 @@
                             @foreach(['Aktif'=>['color'=>'#d1fae5','text'=>'#065f46','icon'=>'fas fa-check-circle','desc'=>'Anggota aktif dan terverifikasi'],'Pending'=>['color'=>'#fef3c7','text'=>'#92400e','icon'=>'fas fa-clock','desc'=>'Menunggu verifikasi admin'],'Nonaktif'=>['color'=>'#fee2e2','text'=>'#991b1b','icon'=>'fas fa-times-circle','desc'=>'Keanggotaan tidak aktif']] as $s=>$sc)
                             <div class="col-md-4 mb-3">
                                 <label style="cursor:pointer">
-                                    <input type="radio" name="status" value="{{ $s }}" {{ old('status','Pending')==$s?'checked':'' }} style="display:none" class="status-radio">
+                                    <input type="radio" name="status" value="{{ $s }}" {{ old('status','Pending')==$s?'checked':'' }} required style="display:none" class="status-radio">
                                     <div class="status-card p-3 text-center border rounded" style="border-radius:12px!important;transition:.2s;background:{{ $sc['color'] }};border-color:{{ $sc['color'] }}!important;">
                                         <i class="{{ $sc['icon'] }} fa-2x mb-2" style="color:{{ $sc['text'] }}"></i>
                                         <div class="font-weight-bold" style="color:{{ $sc['text'] }}">{{ $s }}</div>
@@ -264,14 +264,25 @@
                     {{-- Summary --}}
                     <div class="card border-0" style="background:#f0f4ff;border-radius:12px;">
                         <div class="card-body p-4">
-                            <h6 class="font-weight-bold text-primary mb-3"><i class="fas fa-clipboard-list mr-2"></i>Ringkasan</h6>
+                            <h6 class="font-weight-bold text-primary mb-3"><i class="fas fa-clipboard-list mr-2"></i>Ringkasan Data</h6>
                             <div class="row" style="font-size:13px">
-                                <div class="col-6"><span class="text-muted">NIK:</span> <strong id="sum-nik">-</strong></div>
-                                <div class="col-6"><span class="text-muted">Nama:</span> <strong id="sum-nama">-</strong></div>
-                                <div class="col-6 mt-2"><span class="text-muted">Distrik:</span> <strong id="sum-distrik">-</strong></div>
-                                <div class="col-6 mt-2"><span class="text-muted">Usaha:</span> <strong id="sum-usaha">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">NIK:</span> <strong id="sum-nik">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">Nama:</span> <strong id="sum-nama">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">Tempat Lahir:</span> <strong id="sum-tempat">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">Tanggal Lahir:</span> <strong id="sum-tgl">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">No. HP:</span> <strong id="sum-hp">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">Email:</span> <strong id="sum-email">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">Distrik:</span> <strong id="sum-distrik">-</strong></div>
+                                <div class="col-6 mb-2"><span class="text-muted">Desa:</span> <strong id="sum-desa">-</strong></div>
+                                <div class="col-12 mb-2"><span class="text-muted">Nama Usaha:</span> <strong id="sum-usaha">-</strong></div>
+                                <div class="col-12 mb-2"><span class="text-muted">Status:</span> <strong id="sum-status" class="badge badge-warning">Pending</strong></div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3" style="border-radius:12px;">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Perhatian:</strong> Pastikan semua data sudah benar sebelum menyimpan. Data yang tersimpan akan langsung masuk ke sistem.
                     </div>
                 </div>
             </div>
@@ -280,7 +291,7 @@
             <button type="button" class="btn btn-light btn-prev" onclick="prevStep(3)">
                 <i class="fas fa-arrow-left mr-1"></i>Sebelumnya
             </button>
-            <button type="submit" class="btn btn-success btn-next">
+            <button type="submit" class="btn btn-success btn-next" id="btnSimpan">
                 <i class="fas fa-save mr-1"></i>Simpan Anggota
             </button>
         </div>
@@ -291,7 +302,65 @@
 @endsection
 @push('scripts')
 <script>
+function updateSummary() {
+    // Update semua field di ringkasan
+    document.getElementById('sum-nik').textContent = document.querySelector('[name=nik]').value || '-';
+    document.getElementById('sum-nama').textContent = document.querySelector('[name=nama]').value || '-';
+    document.getElementById('sum-tempat').textContent = document.querySelector('[name=tempat_lahir]').value || '-';
+    document.getElementById('sum-tgl').textContent = document.querySelector('[name=tanggal_lahir]').value || '-';
+    document.getElementById('sum-hp').textContent = document.querySelector('[name=no_hp]').value || '-';
+    document.getElementById('sum-email').textContent = document.querySelector('[name=email]').value || '-';
+    document.getElementById('sum-distrik').textContent = document.querySelector('[name=distrik]').value || '-';
+    document.getElementById('sum-desa').textContent = document.querySelector('[name=desa]').value || '-';
+    document.getElementById('sum-usaha').textContent = document.querySelector('[name=nama_usaha]').value || '-';
+    
+    // Update status
+    const statusChecked = document.querySelector('[name=status]:checked');
+    if (statusChecked) {
+        const statusValue = statusChecked.value;
+        const statusBadge = document.getElementById('sum-status');
+        statusBadge.textContent = statusValue;
+        statusBadge.className = 'badge badge-' + (statusValue === 'Aktif' ? 'success' : statusValue === 'Pending' ? 'warning' : 'danger');
+    }
+}
+
 function nextStep(step) {
+    // Validasi sebelum pindah step
+    const currentSection = document.querySelector('.form-section.active');
+    const requiredFields = currentSection.querySelectorAll('[required]');
+    let isValid = true;
+    let firstInvalid = null;
+    
+    requiredFields.forEach(field => {
+        if (!field.value || (field.type === 'radio' && !currentSection.querySelector('[name="'+field.name+'"]:checked'))) {
+            isValid = false;
+            field.classList.add('is-invalid');
+            if (!firstInvalid) firstInvalid = field;
+            
+            // Tambah feedback jika belum ada
+            if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('invalid-feedback')) {
+                const feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback d-block';
+                feedback.textContent = 'Field ini wajib diisi';
+                field.parentNode.appendChild(feedback);
+            }
+        } else {
+            field.classList.remove('is-invalid');
+            const feedback = field.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+        }
+    });
+    
+    if (!isValid) {
+        alert('Mohon lengkapi semua field yang wajib diisi!');
+        if (firstInvalid) {
+            firstInvalid.focus();
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+    }
+    
+    // Pindah ke step berikutnya
     document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
     document.getElementById('section-'+step).classList.add('active');
     document.querySelectorAll('.step-item').forEach((item, i) => {
@@ -299,18 +368,124 @@ function nextStep(step) {
         if (i+1 < step) item.classList.add('done');
         if (i+1 === step) item.classList.add('active');
     });
-    // Update summary
-    document.getElementById('sum-nik').textContent = document.querySelector('[name=nik]').value || '-';
-    document.getElementById('sum-nama').textContent = document.querySelector('[name=nama]').value || '-';
-    document.getElementById('sum-distrik').textContent = document.querySelector('[name=distrik]').value || '-';
-    document.getElementById('sum-usaha').textContent = document.querySelector('[name=nama_usaha]').value || '-';
-    window.scrollTo(0,0);
+    
+    // Update summary jika pindah ke step 4
+    if (step === 4) {
+        updateSummary();
+    }
+    
+    window.scrollTo({top: 0, behavior: 'smooth'});
 }
-function prevStep(step) { nextStep(step); }
+
+function prevStep(step) { 
+    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-'+step).classList.add('active');
+    document.querySelectorAll('.step-item').forEach((item, i) => {
+        item.classList.remove('active','done');
+        if (i+1 < step) item.classList.add('done');
+        if (i+1 === step) item.classList.add('active');
+    });
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
 
 // File input
 document.querySelector('.custom-file-input').addEventListener('change',function(e){
-    document.querySelector('.custom-file-label').textContent = e.target.files[0]?e.target.files[0].name:'Pilih foto...';
+    const fileName = e.target.files[0] ? e.target.files[0].name : 'Pilih foto...';
+    document.querySelector('.custom-file-label').textContent = fileName;
+});
+
+// NIK validation
+document.querySelector('[name=nik]').addEventListener('input', function(e) {
+    this.value = this.value.replace(/\D/g, '').substring(0, 16);
+});
+
+// Phone validation
+document.querySelector('[name=no_hp]').addEventListener('input', function(e) {
+    this.value = this.value.replace(/\D/g, '');
+});
+
+// Status radio styling
+document.querySelectorAll('.status-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.status-card').forEach(card => {
+            card.style.transform = 'scale(1)';
+            card.style.boxShadow = 'none';
+        });
+        if (this.checked) {
+            const card = this.nextElementSibling;
+            card.style.transform = 'scale(1.05)';
+            card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            updateSummary();
+        }
+    });
+});
+
+// Trigger initial status styling
+const checkedRadio = document.querySelector('.status-radio:checked');
+if (checkedRadio) {
+    checkedRadio.dispatchEvent(new Event('change'));
+}
+
+// Form submit validation
+document.getElementById('formAnggota').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const btnSimpan = document.getElementById('btnSimpan');
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value && field.type !== 'radio') {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else if (field.type === 'radio') {
+            const radioGroup = document.querySelectorAll('[name="'+field.name+'"]');
+            const isChecked = Array.from(radioGroup).some(r => r.checked);
+            if (!isChecked) {
+                isValid = false;
+            }
+        }
+    });
+    
+    if (!isValid) {
+        alert('Mohon lengkapi semua field yang wajib diisi!');
+        // Kembali ke step pertama yang ada error
+        for (let i = 1; i <= 4; i++) {
+            const section = document.getElementById('section-' + i);
+            if (section.querySelector('.is-invalid')) {
+                nextStep(i);
+                break;
+            }
+        }
+        return;
+    }
+    
+    // Konfirmasi sebelum simpan
+    if (!confirm('Apakah Anda yakin data yang diisi sudah benar dan ingin menyimpan anggota ini?')) {
+        return;
+    }
+    
+    // Disable button dan tampilkan loading
+    btnSimpan.disabled = true;
+    btnSimpan.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...';
+    
+    // Submit form
+    this.submit();
+});
+
+// Remove invalid class on input
+document.querySelectorAll('.form-control, .status-radio').forEach(input => {
+    input.addEventListener('input', function() {
+        this.classList.remove('is-invalid');
+        const feedback = this.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+    });
+    
+    input.addEventListener('change', function() {
+        this.classList.remove('is-invalid');
+        const feedback = this.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+    });
 });
 </script>
 @endpush

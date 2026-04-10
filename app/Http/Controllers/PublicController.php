@@ -90,7 +90,7 @@ class PublicController extends Controller
     }
 
     public function daftarKoperasi() {
-        return redirect()->route("koperasi.register");
+        return redirect()->route("register");
     }
 
     

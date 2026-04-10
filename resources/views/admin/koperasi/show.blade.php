@@ -89,7 +89,7 @@
     {{-- Kolom Kanan --}}
     <div class="col-lg-8">
         {{-- Verifikasi --}}
-        @if($koperasi->status_verifikasi === 'pending' && (auth()->user()->isAdmin() || auth()->user()->isPetugas()))
+        @if(auth()->user()->isAdmin() || auth()->user()->isPetugas())
         <div class="card card-warning card-outline shadow-sm mb-3">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-clipboard-check mr-2"></i>Verifikasi Koperasi</h3>

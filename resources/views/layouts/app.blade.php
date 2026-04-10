@@ -28,16 +28,18 @@
 
     <style>
         .brand-link { background: #1a3a6e !important; }
+        
         @php
-    $role = auth()->user()->role ?? "admin";
-    $themes = [
-        "admin"    => ["sidebar"=>"#1e3a5f", "header"=>"#1a3a6e", "accent"=>"#f5a623", "label"=>"Administrator"],
-        "pimpinan" => ["sidebar"=>"#145a32", "header"=>"#1e8449", "accent"=>"#58d68d", "label"=>"Pimpinan"],
-        "petugas"  => ["sidebar"=>"#0e6655", "header"=>"#117a65", "accent"=>"#48c9b0", "label"=>"Petugas"],
-        "koperasi"     => ["sidebar"=>"#6e2f1a", "header"=>"#a04000", "accent"=>"#f39c12", "label"=>"Pelaku Koperasi"],
-    ];
-    $theme = $themes[$role] ?? $themes["admin"];
-@endphp
+            $role = auth()->user()->role ?? "admin";
+            $themes = [
+                "admin"    => ["sidebar"=>"#1e3a5f", "header"=>"#1a3a6e", "accent"=>"#f5a623", "label"=>"Administrator"],
+                "pimpinan" => ["sidebar"=>"#145a32", "header"=>"#1e8449", "accent"=>"#58d68d", "label"=>"Pimpinan"],
+                "petugas"  => ["sidebar"=>"#0e6655", "header"=>"#117a65", "accent"=>"#48c9b0", "label"=>"Petugas"],
+                "koperasi" => ["sidebar"=>"#6e2f1a", "header"=>"#a04000", "accent"=>"#f39c12", "label"=>"Pelaku Koperasi"],
+            ];
+            $theme = $themes[$role] ?? $themes["admin"];
+        @endphp
+        
         .main-sidebar { background: {{ $theme["sidebar"] }} !important; }
         .nav-sidebar .nav-link { color: rgba(255,255,255,.8) !important; }
         .nav-sidebar .nav-link.active,
@@ -65,20 +67,13 @@
         .user-panel { border-bottom: 1px solid rgba(255,255,255,.1) !important; }
         .user-panel .info a { color: rgba(255,255,255,.9) !important; font-size: 13px; font-weight: 600; }
         .brand-text { color: #fff !important; font-size: 14px !important; }
+        
         /* Fix dropdown notifikasi tampil di depan sidebar */
-        .main-header .dropdown-menu {
-            z-index: 9999 !important;
-            position: absolute !important;
-        }
-        .main-header .navbar-nav {
-            z-index: 9999 !important;
-        }
-        .main-header {
-            z-index: 1040 !important;
-        }
-        .main-sidebar {
-            z-index: 1035 !important;
-        }
+        .main-header .dropdown-menu { z-index: 9999 !important; position: absolute !important; }
+        .main-header .navbar-nav { z-index: 9999 !important; }
+        .main-header { z-index: 1040 !important; }
+        .main-sidebar { z-index: 1035 !important; }
+        
         /* Fix semua teks & icon di header dan sidebar jadi putih */
         .main-header .nav-link { color: #ffffff !important; }
         .main-header .nav-link:hover { color: #ffffff !important; }
@@ -88,14 +83,19 @@
         .user-panel .info span { color: rgba(255,255,255,0.75) !important; }
         .user-panel > .info { color: #ffffff !important; }
         .sidebar-dark-primary .user-panel .info a { color: #ffffff !important; }
+        
         /* Teks role/label di bawah nama user */
         .user-panel .info p { color: rgba(255,255,255,0.75) !important; }
+        
         /* Icon di header (notif, dsb) */
         .main-header .fas, .main-header .far, .main-header .fab { color: #ffffff !important; }
+        
         /* Teks dropdown user di kanan atas */
         .main-header .nav-item .nav-link p { color: #ffffff !important; }
+        
         /* Kab. Tolikara */
         .navbar-nav .nav-link span, .main-header span { color: #ffffff !important; }
+        
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #1a3a6e; border-radius: 3px; }
         .alert { border-radius: 8px; font-size: 13px; }
@@ -106,6 +106,11 @@
         .pagination { font-size: 13px; }
         .select2-container { width: 100% !important; }
         .dropdown-menu { font-size: 13px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,.15); }
+        
+        .logo-img { height: 40px; margin-right: 8px; }
+        .brand-link { display: flex; align-items: center; }
+        .logo-text-wrapper { line-height: 1.2; }
+        .logo-text { font-weight: 700; font-size: 13px; display: block; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -117,34 +122,7 @@
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
         <!-- Kiri: Toggle + Judul -->
         <ul class="navbar-nav">
-            
-    {{-- ── NOTIFIKASI BELL ──────────────────────────── --}}
-    <li class="nav-item dropdown" id="notifDropdown">
-        <a class="nav-link" href="#" data-toggle="dropdown" id="notifBell">
-            <i class="far fa-bell"></i>
-            <span class="badge badge-danger navbar-badge" id="notifCount" style="display:none;">0</span>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right shadow border-0 p-0" style="width:340px;max-height:420px;overflow:hidden;">
-            <div style="background:linear-gradient(135deg,#0d2240,#1a3a6e);padding:14px 18px;" class="d-flex justify-content-between align-items-center">
-                <span style="color:#fff;font-weight:700;font-size:14px;"><i class="fas fa-bell mr-2"></i>Notifikasi</span>
-                <button onclick="bacaSemua()" class="btn btn-sm" style="background:rgba(255,255,255,.15);color:#fff;font-size:11px;border:none;">
-                    Tandai semua dibaca
-                </button>
-            </div>
-            <div id="notifList" style="max-height:320px;overflow-y:auto;">
-                <div class="text-center py-4 text-muted" id="notifEmpty">
-                    <i class="fas fa-bell-slash fa-2x d-block mb-2" style="opacity:.3"></i>
-                    Tidak ada notifikasi baru
-                </div>
-            </div>
-            <div style="border-top:1px solid #eee;padding:10px;text-align:center;">
-                <a href="{{ route('notifikasi.index') }}" style="font-size:12px;color:#1a3a6e;font-weight:600;">
-                    Lihat semua notifikasi
-                </a>
-            </div>
-        </div>
-    </li>
-<li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button">
                     <i class="fas fa-bars"></i>
                 </a>
@@ -159,7 +137,6 @@
 
         <!-- Kanan: Notifikasi + User -->
         <ul class="navbar-nav ml-auto">
-
             <!-- Notifikasi Bell -->
             @php
                 $unreadCount = auth()->user()->unreadNotifikasi()->count();
@@ -252,13 +229,12 @@
          SIDEBAR
     ═══════════════════════════════════════════ -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <!-- Brand -->
-        <a href="{{ route('dashboard') }}" class="brand-link px-3">
-            <i class="fas fa-building mr-2" style="font-size:20px; color:#fff; opacity:.9"></i>
-            <span class="brand-text font-weight-bold" style="font-size:13px; line-height:1.2">
-                DISPERINDAGKOP<br>
+        <a href="{{ route('dashboard') }}" class="brand-link px-3 d-flex align-items-center">
+            <img src="{{ asset('logo.png') }}" alt="Logo SIPPKT" class="logo-img" style="height: 40px; margin-right: 8px;">
+            <div class="logo-text-wrapper d-none d-md-block">
+                <span class="logo-text" style="font-weight: 700; font-size: 13px; display: block;">DISPERINDAGKOP</span>
                 <small style="font-size:10px; opacity:.75; font-weight:400">Kab. Tolikara</small>
-            </span>
+            </div>
         </a>
 
         <div class="sidebar">
@@ -285,10 +261,8 @@
 
                     {{-- ═══════════ ADMIN MENU ═══════════ --}}
                     @if(auth()->user()->isAdmin())
-
                     <li class="nav-item">
-                        <a href="{{ route('admin.dashboard') }}"
-                           class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
                             <p>Dashboard</p>
                         </a>
@@ -308,20 +282,17 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="{{ route('admin.koperasi.index') }}"
-                                   class="nav-link {{ request()->routeIs('admin.koperasi.index') ? 'active' : '' }}">
+                                <a href="{{ route('admin.koperasi.index') }}" class="nav-link {{ request()->routeIs('admin.koperasi.index') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Semua Koperasi</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.koperasi.create') }}"
-                                   class="nav-link {{ request()->routeIs('admin.koperasi.create') ? 'active' : '' }}">
+                                <a href="{{ route('admin.koperasi.create') }}" class="nav-link {{ request()->routeIs('admin.koperasi.create') ? 'active' : '' }}">
                                     <i class="far fa-plus-square nav-icon"></i><p>Daftar Koperasi Baru</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.koperasi.index', ['status_verifikasi'=>'pending']) }}"
-                                   class="nav-link">
+                                <a href="{{ route('admin.koperasi.index', ['status_verifikasi'=>'pending']) }}" class="nav-link">
                                     <i class="far fa-clock nav-icon"></i>
                                     <p>Menunggu Verifikasi
                                         @if($pendingCount > 0)
@@ -402,20 +373,11 @@
                                     <i class="far fa-circle nav-icon"></i><p>Semua Berita</p>
                                 </a>
                             </li>
-                    <li class="nav-item">
-                        <a href="{{ route('admin.pengumuman.index') }}" 
-                           class="nav-link {{ request()->routeIs('admin.pengumuman*') ? 'active' : '' }}">
-                            <i class="fas fa-bullhorn nav-icon text-warning"></i>
-                            <p>Pengumuman</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('admin.jadwal.index') }}"
-                           class="nav-link {{ request()->routeIs('admin.jadwal*') ? 'active' : '' }}">
-                            <i class="fas fa-calendar-alt nav-icon text-primary"></i>
-                            <p>Jadwal Kegiatan</p>
-                        </a>
-                    </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pengumuman.index') }}" class="nav-link {{ request()->routeIs('admin.pengumuman*') ? 'active' : '' }}">
+                                    <i class="fas fa-bullhorn nav-icon text-warning"></i><p>Pengumuman</p>
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="{{ route('admin.berita.create') }}" class="nav-link {{ request()->routeIs('admin.berita.create') ? 'active' : '' }}">
                                     <i class="far fa-plus-square nav-icon"></i><p>Tulis Berita</p>
@@ -423,11 +385,13 @@
                             </li>
                         </ul>
                     </li>
+                    
                     <li class="nav-item">
                         <a href="{{ route('admin.galeri.index') }}" class="nav-link {{ request()->routeIs('admin.galeri*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-images"></i><p>Galeri Kegiatan</p>
                         </a>
                     </li>
+                    
                     <li class="nav-item {{ request()->routeIs('admin.kontak*') || request()->routeIs('admin.halaman-statis*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ request()->routeIs('admin.kontak*') || request()->routeIs('admin.halaman-statis*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-address-book"></i>
@@ -447,8 +411,6 @@
                         </ul>
                     </li>
 
-                    
-                    
                     <li class="nav-header">KOPERASI</li>
                     <li class="nav-item {{ request()->routeIs('admin.anggota*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ request()->routeIs('admin.anggota*') ? 'active' : '' }}">
@@ -467,7 +429,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('admin.anggota.dokumen') }}" class="nav-link {{ request()->routeIs('admin.anggota*') && request()->get('dokumen') ? 'active' : '' }}">
+                                <a href="{{ route('admin.anggota.dokumen') }}" class="nav-link">
                                     <i class="fas fa-file-alt nav-icon"></i><p>📄 Dokumen Anggota</p>
                                 </a>
                             </li>
@@ -478,6 +440,7 @@
                             </li>
                         </ul>
                     </li>
+
                     <li class="nav-header">LAYANAN</li>
                     <li class="nav-item {{ request()->routeIs('admin.pelatihan*') || request()->routeIs('admin.pengajuan*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ request()->routeIs('admin.pelatihan*') || request()->routeIs('admin.pengajuan*') ? 'active' : '' }}">
@@ -497,6 +460,7 @@
                             </li>
                         </ul>
                     </li>
+
                     <li class="nav-header">MONITORING</li>
                     <li class="nav-item {{ request()->routeIs('admin.laporan*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ request()->routeIs('admin.laporan*') ? 'active' : '' }}">
@@ -512,12 +476,11 @@
                             <li class="nav-item">
                                 <a href="{{ route('admin.laporan.bantuan') }}" class="nav-link {{ request()->routeIs('admin.laporan.bantuan') ? 'active' : '' }}">
                                     <i class="far fa-circle nav-icon"></i><p>Rekap Bantuan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('admin.laporan.sertifikat') }}" class="nav-link {{ request()->routeIs('admin.laporan.sertifikat*') ? 'active' : '' }}">
-                            <i class="far fa-circle nav-icon"></i>
-                            <p>Sertifikat Koperasi</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.laporan.sertifikat') }}" class="nav-link {{ request()->routeIs('admin.laporan.sertifikat*') ? 'active' : '' }}">
+                                    <i class="far fa-circle nav-icon"></i><p>Sertifikat Koperasi</p>
                                 </a>
                             </li>
                         </ul>
@@ -537,7 +500,6 @@
 
                     {{-- ═══════════ PETUGAS MENU ═══════════ --}}
                     @elseif(auth()->user()->isPetugas())
-
                     <li class="nav-item">
                         <a href="{{ route('petugas.dashboard') }}" class="nav-link {{ request()->routeIs('petugas.dashboard') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
@@ -566,7 +528,6 @@
                             <i class="nav-icon fas fa-calendar-alt"></i><p>Jadwal Saya</p>
                         </a>
                     </li>
-
                     <li class="nav-header">AKUN</li>
                     <li class="nav-item">
                         <a href="{{ route('petugas.profile') }}" class="nav-link {{ request()->routeIs('petugas.profile') ? 'active' : '' }}">
@@ -576,7 +537,6 @@
 
                     {{-- ═══════════ PIMPINAN MENU ═══════════ --}}
                     @elseif(auth()->user()->isPimpinan())
-
                     <li class="nav-item">
                         <a href="{{ route('pimpinan.dashboard') }}" class="nav-link {{ request()->routeIs('pimpinan.dashboard') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
@@ -603,9 +563,6 @@
                             <li class="nav-item">
                                 <a href="{{ route('pimpinan.laporan.bantuan') }}" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i><p>Rekap Bantuan</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                                 </a>
                             </li>
                         </ul>
@@ -616,7 +573,6 @@
                             <i class="nav-icon fas fa-calendar-alt"></i><p>Jadwal Kegiatan</p>
                         </a>
                     </li>
-
                     <li class="nav-header">AKUN</li>
                     <li class="nav-item">
                         <a href="{{ route('pimpinan.profile') }}" class="nav-link {{ request()->routeIs('pimpinan.profile') ? 'active' : '' }}">
@@ -624,9 +580,8 @@
                         </a>
                     </li>
 
-                    {{-- ═══════════ Koperasi MENU ═══════════ --}}
+                    {{-- ═══════════ KOPERASI MENU ═══════════ --}}
                     @else
-
                     <li class="nav-item">
                         <a href="{{ route('koperasi.dashboard') }}" class="nav-link {{ request()->routeIs('koperasi.dashboard') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
@@ -665,9 +620,7 @@
                             </p>
                         </a>
                     </li>
-
                     @endif
-
                 </ul>
             </nav>
         </div>
@@ -699,7 +652,6 @@
         <!-- Main Content -->
         <section class="content">
             <div class="container-fluid">
-
                 <!-- Flash Messages -->
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show shadow-sm">

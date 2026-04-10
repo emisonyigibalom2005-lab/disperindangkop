@@ -17,12 +17,18 @@
 <div class="col-md-4 mb-4">
 <div class="card shadow-sm text-center">
 <div class="card-body pt-4">
+<div class="position-relative d-inline-block mb-3">
 @if($user->profile_photo)
-<img src="{{ asset('storage/'.$user->profile_photo) }}" id="previewFoto" class="rounded-circle mb-3" style="width:110px;height:110px;object-fit:cover;border:3px solid #1a3a6e;">
+<img src="{{ asset('storage/'.$user->profile_photo) }}" id="previewFoto" class="rounded-circle" style="width:120px;height:120px;object-fit:cover;border:4px solid #1a3a6e;">
+<div id="avatarInisial" class="rounded-circle d-flex align-items-center justify-content-center" style="width:120px;height:120px;background:#1a3a6e;font-size:45px;color:white;font-weight:bold;display:none;">{{ strtoupper(substr($user->name,0,1)) }}</div>
 @else
-<div id="avatarInisial" class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width:110px;height:110px;background:#1a3a6e;font-size:40px;color:white;font-weight:bold;">{{ strtoupper(substr($user->name,0,1)) }}</div>
-<img src="" id="previewFoto" class="rounded-circle mb-3" style="width:110px;height:110px;object-fit:cover;display:none;border:3px solid #1a3a6e;">
+<div id="avatarInisial" class="rounded-circle d-flex align-items-center justify-content-center" style="width:120px;height:120px;background:#1a3a6e;font-size:45px;color:white;font-weight:bold;">{{ strtoupper(substr($user->name,0,1)) }}</div>
+<img src="" id="previewFoto" class="rounded-circle" style="width:120px;height:120px;object-fit:cover;display:none;border:4px solid #1a3a6e;">
 @endif
+<label for="inputFoto" class="btn btn-sm btn-primary rounded-circle position-absolute" style="bottom:0;right:0;width:35px;height:35px;padding:0;cursor:pointer;" title="Ganti Foto">
+<i class="fas fa-camera" style="line-height:35px;"></i>
+</label>
+</div>
 <h5 class="font-weight-bold mb-1">{{ $user->name }}</h5>
 <span class="badge badge-danger px-3 py-1 mb-2">{{ ucfirst($user->role) }}</span>
 <p class="text-muted small mb-1"><i class="fas fa-envelope mr-1"></i>{{ $user->email }}</p>
@@ -41,10 +47,11 @@
 <div class="form-group">
 <label class="font-weight-bold">Foto Profil</label>
 <div class="custom-file">
-<input type="file" class="custom-file-input" id="inputFoto" name="profile_photo" accept="image/*" onchange="previewGambar(this)">
+<input type="file" class="custom-file-input d-none" id="inputFoto" name="profile_photo" accept="image/jpeg,image/jpg,image/png" onchange="previewGambar(this)">
 <label class="custom-file-label" id="labelFoto" for="inputFoto">Pilih foto (JPG/PNG, maks 2MB)</label>
 </div>
-<small class="text-muted">Kosongkan jika tidak ingin mengubah foto</small>
+<small class="text-muted d-block mt-1">Klik icon kamera pada foto atau pilih file di sini</small>
+@error('profile_photo')<small class="text-danger">{{ $message }}</small>@enderror
 </div>
 <div class="form-group">
 <label class="font-weight-bold">Nama Lengkap <span class="text-danger">*</span></label>
@@ -84,17 +91,52 @@
 <script>
 function previewGambar(input) {
     if (input.files && input.files[0]) {
-        var reader = new FileReader();
+        const file = input.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        
+        // Validasi ukuran file
+        if (file.size > maxSize) {
+            alert('Ukuran file terlalu besar! Maksimal 2MB');
+            input.value = '';
+            return;
+        }
+        
+        // Validasi tipe file
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Format file tidak didukung! Gunakan JPG atau PNG');
+            input.value = '';
+            return;
+        }
+        
+        // Preview gambar
+        const reader = new FileReader();
         reader.onload = function(e) {
-            var preview = document.getElementById('previewFoto');
-            var inisial = document.getElementById('avatarInisial');
+            const preview = document.getElementById('previewFoto');
+            const inisial = document.getElementById('avatarInisial');
+            
             preview.src = e.target.result;
             preview.style.display = 'inline-block';
-            if (inisial) inisial.style.display = 'none';
-            document.getElementById('labelFoto').textContent = input.files[0].name;
+            if (inisial) {
+                inisial.style.display = 'none';
+            }
+            
+            // Update label dengan nama file
+            document.getElementById('labelFoto').textContent = file.name;
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(file);
     }
 }
+
+// Trigger file input saat klik icon kamera
+document.addEventListener('DOMContentLoaded', function() {
+    const cameraBtn = document.querySelector('label[for="inputFoto"]');
+    if (cameraBtn) {
+        cameraBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('inputFoto').click();
+        });
+    }
+});
 </script>
 @endpush

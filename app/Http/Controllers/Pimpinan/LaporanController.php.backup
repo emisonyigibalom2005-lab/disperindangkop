@@ -1,0 +1,444 @@
+<?php
+namespace App\Http\Controllers\Pimpinan;
+use App\Http\Controllers\Controller;
+use App\Models\Bantuan;
+use App\Models\PenerimaBantuan;
+use App\Models\Koperasi;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+
+class LaporanController extends Controller
+{
+    public function index() {
+        $stats = ['total_koperasi'=>Koperasi::count(),'koperasi_verified'=>Koperasi::where('status_verifikasi','diverifikasi')->count(),'total_bantuan'=>Bantuan::count(),'penerima_bantuan'=>PenerimaBantuan::where('status','diterima')->count()];
+        return view('pimpinan.laporan.index', compact('stats'));
+    }
+    
+    public function bantuan() { 
+        $bantuan = Bantuan::with('penerima.koperasi')->latest()->paginate(20); 
+        return view('pimpinan.laporan.bantuan', compact('bantuan')); 
+    }
+    
+    public function exportPdf() {
+        try {
+            $data = Koperasi::with('verifiedBy')->latest()->get();
+            
+            // Buat dokumen Word baru
+            $phpWord = new \PhpOffice\PhpWord\PhpWord();
+            $phpWord->setDefaultFontName('Arial');
+            $phpWord->setDefaultFontSize(10);
+            
+            // Set properties dokumen
+            $properties = $phpWord->getDocInfo();
+            $properties->setCreator('DISPERINDAGKOP Tolikara');
+            $properties->setCompany('Dinas Perindustrian, Perdagangan, Koperasi dan UMKM');
+            $properties->setTitle('Laporan Data Koperasi');
+            $properties->setDescription('Laporan lengkap data koperasi Kabupaten Tolikara');
+            $properties->setCategory('Laporan');
+            $properties->setSubject('Laporan Koperasi');
+            
+            // Tambah section dengan orientasi landscape
+            $section = $phpWord->addSection([
+                'marginLeft' => 800,
+                'marginRight' => 800,
+                'marginTop' => 800,
+                'marginBottom' => 800,
+                'orientation' => 'landscape',
+            ]);
+            
+            // ========== HEADER DENGAN LOGO ==========
+            // Buat tabel untuk header (logo + teks)
+            $headerTable = $section->addTable([
+                'borderSize' => 0,
+                'borderColor' => 'FFFFFF',
+                'width' => 100 * 50,
+                'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT
+            ]);
+            
+            $headerTable->addRow(1200);
+            
+            // Cell untuk logo
+            $logoCell = $headerTable->addCell(2000, ['valign' => 'center']);
+            
+            // Cek apakah logo ada
+            $logoPath = public_path('logo.png');
+            if (file_exists($logoPath)) {
+                $logoCell->addImage($logoPath, [
+                    'width' => 80,
+                    'height' => 80,
+                    'alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER
+                ]);
+            } else {
+                // Jika logo tidak ada, buat placeholder
+                $logoCell->addText('LOGO', [
+                    'bold' => true,
+                    'size' => 20,
+                    'color' => '1a3a6e'
+                ], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
+            }
+            
+            // Cell untuk teks header
+            $textCell = $headerTable->addCell(12000, ['valign' => 'center']);
+            
+            $textCell->addText(
+                'PEMERINTAH KABUPATEN TOLIKARA',
+                ['bold' => true, 'size' => 14, 'color' => '1a3a6e'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 0]
+            );
+            
+            $textCell->addText(
+                'DINAS PERINDUSTRIAN, PERDAGANGAN, KOPERASI DAN UMKM',
+                ['bold' => true, 'size' => 16, 'color' => '1a3a6e'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 50]
+            );
+            
+            $textCell->addText(
+                'Jl. Raya Karubaga, Kabupaten Tolikara, Papua Pegunungan',
+                ['size' => 10, 'color' => '666666'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 0]
+            );
+            
+            $textCell->addText(
+                'Email: disperindagkop@tolikara.go.id | Telp: (0969) 12345',
+                ['size' => 10, 'color' => '666666'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 0]
+            );
+            
+            // Garis pemisah horizontal penuh (double line)
+            $section->addText('', [], [
+                'borderBottomSize' => 18,
+                'borderBottomColor' => '000000',
+                'spaceAfter' => 0
+            ]);
+            $section->addText('', [], [
+                'borderBottomSize' => 6,
+                'borderBottomColor' => '000000',
+                'spaceAfter' => 200
+            ]);
+            
+            $section->addTextBreak(1);
+            
+            // ========== JUDUL LAPORAN ==========
+            $section->addText(
+                'LAPORAN DATA KOPERASI',
+                ['bold' => true, 'size' => 18, 'color' => '1a3a6e', 'underline' => 'single'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 100, 'spaceBefore' => 100]
+            );
+            
+            // Info tanggal
+            $infoTable = $section->addTable(['borderSize' => 0, 'width' => 100 * 50, 'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT]);
+            $infoTable->addRow();
+            $infoTable->addCell(7000)->addText('Periode: Semua Data', ['size' => 10, 'color' => '333333']);
+            $infoTable->addCell(7000)->addText('Tanggal Cetak: ' . date('d F Y'), ['size' => 10, 'color' => '333333'], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::RIGHT]);
+            
+            $section->addTextBreak(1);
+            
+            // ========== RINGKASAN DATA ==========
+            $section->addText(
+                'I. RINGKASAN DATA',
+                ['bold' => true, 'size' => 13, 'color' => '1a3a6e'],
+                ['spaceAfter' => 150, 'spaceBefore' => 100]
+            );
+            
+            $statsTable = $section->addTable([
+                'borderSize' => 8,
+                'borderColor' => '1a3a6e',
+                'cellMargin' => 100,
+                'width' => 50 * 50,
+                'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT
+            ]);
+            
+            // Header stats
+            $statsTable->addRow(500);
+            $statsTable->addCell(5000, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'KETERANGAN',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 11],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            $statsTable->addCell(2000, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'JUMLAH',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 11],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            // Data stats
+            $statsTable->addRow(450);
+            $statsTable->addCell(5000, ['bgColor' => 'e8f4f8', 'valign' => 'center'])->addText(
+                'Total Koperasi Terdaftar',
+                ['bold' => true, 'size' => 10, 'color' => '333333']
+            );
+            $statsTable->addCell(2000, ['valign' => 'center'])->addText(
+                $data->count() . ' Koperasi',
+                ['size' => 11, 'bold' => true, 'color' => '1a3a6e'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $statsTable->addRow(450);
+            $statsTable->addCell(5000, ['bgColor' => 'f8f9fa', 'valign' => 'center'])->addText(
+                'Koperasi Terverifikasi',
+                ['bold' => true, 'size' => 10, 'color' => '333333']
+            );
+            $statsTable->addCell(2000, ['valign' => 'center'])->addText(
+                $data->where('status_verifikasi', 'diverifikasi')->count() . ' Koperasi',
+                ['size' => 11, 'bold' => true, 'color' => '28a745'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $statsTable->addRow(450);
+            $statsTable->addCell(5000, ['bgColor' => 'e8f4f8', 'valign' => 'center'])->addText(
+                'Koperasi Menunggu Verifikasi',
+                ['bold' => true, 'size' => 10, 'color' => '333333']
+            );
+            $statsTable->addCell(2000, ['valign' => 'center'])->addText(
+                $data->where('status_verifikasi', 'pending')->count() . ' Koperasi',
+                ['size' => 11, 'bold' => true, 'color' => 'ffc107'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $section->addTextBreak(2);
+            
+            // ========== DAFTAR KOPERASI ==========
+            $section->addText(
+                'II. DAFTAR KOPERASI',
+                ['bold' => true, 'size' => 13, 'color' => '1a3a6e'],
+                ['spaceAfter' => 150]
+            );
+            
+            // Tabel data koperasi
+            $tableStyle = [
+                'borderSize' => 8,
+                'borderColor' => '1a3a6e',
+                'cellMargin' => 80,
+                'width' => 100 * 50,
+                'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT
+            ];
+            
+            $table = $section->addTable($tableStyle);
+            
+            // Header tabel
+            $table->addRow(600, ['tblHeader' => true]);
+            $table->addCell(600, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'NO',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 9],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            $table->addCell(1800, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'NO. REGISTRASI',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 9],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            $table->addCell(3200, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'NAMA USAHA',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 9],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            $table->addCell(2200, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'PEMILIK',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 9],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            $table->addCell(1600, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'DISTRIK',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 9],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            $table->addCell(1300, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'KATEGORI',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 9],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            $table->addCell(1500, ['bgColor' => '1a3a6e', 'valign' => 'center'])->addText(
+                'STATUS',
+                ['bold' => true, 'color' => 'FFFFFF', 'size' => 9],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            // Data rows dengan zebra striping
+            foreach ($data as $index => $koperasi) {
+                $bgColor = ($index % 2 == 0) ? 'f8f9fa' : 'FFFFFF';
+                
+                $table->addRow(450);
+                $table->addCell(600, ['bgColor' => $bgColor, 'valign' => 'center'])->addText(
+                    $index + 1,
+                    ['size' => 9],
+                    ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+                );
+                $table->addCell(1800, ['bgColor' => $bgColor, 'valign' => 'center'])->addText(
+                    $koperasi->no_registrasi ?? '-',
+                    ['size' => 9, 'color' => '333333']
+                );
+                $table->addCell(3200, ['bgColor' => $bgColor, 'valign' => 'center'])->addText(
+                    $koperasi->nama_usaha ?? '-',
+                    ['size' => 9, 'bold' => true, 'color' => '1a3a6e']
+                );
+                $table->addCell(2200, ['bgColor' => $bgColor, 'valign' => 'center'])->addText(
+                    $koperasi->nama_pemilik ?? '-',
+                    ['size' => 9, 'color' => '333333']
+                );
+                $table->addCell(1600, ['bgColor' => $bgColor, 'valign' => 'center'])->addText(
+                    $koperasi->distrik ?? '-',
+                    ['size' => 9, 'color' => '333333']
+                );
+                $table->addCell(1300, ['bgColor' => $bgColor, 'valign' => 'center'])->addText(
+                    ucfirst($koperasi->kategori ?? '-'),
+                    ['size' => 9, 'color' => '333333']
+                );
+                
+                // Status dengan badge warna
+                $statusColor = $koperasi->status_verifikasi == 'diverifikasi' ? '28a745' : 'ffc107';
+                $statusBg = $koperasi->status_verifikasi == 'diverifikasi' ? 'd4edda' : 'fff3cd';
+                $table->addCell(1500, ['bgColor' => $statusBg, 'valign' => 'center'])->addText(
+                    strtoupper($koperasi->status_verifikasi ?? '-'),
+                    ['size' => 8, 'bold' => true, 'color' => $statusColor],
+                    ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+                );
+            }
+            
+            // ========== FOOTER ==========
+            $section->addTextBreak(2);
+            
+            // Garis pemisah
+            $section->addLine([
+                'weight' => 1,
+                'width' => 450,
+                'height' => 0,
+                'color' => 'cccccc'
+            ]);
+            
+            $section->addTextBreak(1);
+            
+            // Tanda tangan
+            $signTable = $section->addTable(['borderSize' => 0, 'width' => 100 * 50, 'unit' => \PhpOffice\PhpWord\SimpleType\TblWidth::PERCENT]);
+            $signTable->addRow();
+            $signTable->addCell(7000)->addText('', []);
+            $signTable->addCell(7000)->addText(
+                'Tolikara, ' . date('d F Y'),
+                ['size' => 10, 'color' => '333333'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $signTable->addRow();
+            $signTable->addCell(7000)->addText('', []);
+            $signTable->addCell(7000)->addText(
+                'Kepala Dinas',
+                ['size' => 10, 'bold' => true, 'color' => '333333'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $signTable->addRow(1200);
+            $signTable->addCell(7000)->addText('', []);
+            $signTable->addCell(7000)->addText('', []);
+            
+            $signTable->addRow();
+            $signTable->addCell(7000)->addText('', []);
+            $signTable->addCell(7000)->addText(
+                '(_____________________)',
+                ['size' => 10, 'bold' => true, 'color' => '333333'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $signTable->addRow();
+            $signTable->addCell(7000)->addText('', []);
+            $signTable->addCell(7000)->addText(
+                'NIP. __________________',
+                ['size' => 9, 'color' => '666666'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $section->addTextBreak(1);
+            
+            // Copyright footer
+            $section->addText(
+                'Dokumen ini dicetak secara otomatis pada ' . date('d F Y, H:i:s') . ' WIT',
+                ['size' => 8, 'italic' => true, 'color' => '999999'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            $section->addText(
+                '© ' . date('Y') . ' DISPERINDAGKOP Kabupaten Tolikara - Semua Hak Dilindungi',
+                ['size' => 8, 'italic' => true, 'color' => '999999'],
+                ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+            );
+            
+            // Generate filename
+            $filename = 'Laporan-Koperasi-' . date('d-M-Y') . '.docx';
+            
+            // Save ke temporary file
+            $temp_file = tempnam(sys_get_temp_dir(), 'PHPWord');
+            $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+            $objWriter->save($temp_file);
+            
+            // Download
+            return response()->download($temp_file, $filename, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ])->deleteFileAfterSend(true);
+            
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal membuat dokumen Word: ' . $e->getMessage());
+        }
+    }
+    
+    public function exportExcel() {
+        $data = Koperasi::with('verifiedBy')->latest()->get();
+        
+        $filename = 'Laporan-Koperasi-' . date('d-M-Y') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+        
+        $callback = function() use ($data) {
+            $file = fopen('php://output', 'w');
+            
+            // UTF-8 BOM untuk Excel
+            fputs($file, "\xEF\xBB\xBF");
+            
+            // Header dengan styling
+            fputcsv($file, ['LAPORAN DATA KOPERASI']);
+            fputcsv($file, ['Dinas Perindustrian, Perdagangan, Koperasi dan UMKM']);
+            fputcsv($file, ['Kabupaten Tolikara']);
+            fputcsv($file, ['Tanggal: ' . date('d F Y')]);
+            fputcsv($file, []); // Baris kosong
+            
+            // Header tabel
+            fputcsv($file, [
+                'No',
+                'No. Registrasi',
+                'Nama Usaha',
+                'Nama Pemilik',
+                'Distrik',
+                'Kategori',
+                'Status Verifikasi',
+                'Tanggal Daftar',
+                'Diverifikasi Oleh'
+            ]);
+            
+            // Data
+            foreach ($data as $index => $koperasi) {
+                fputcsv($file, [
+                    $index + 1,
+                    $koperasi->no_registrasi ?? '-',
+                    $koperasi->nama_usaha ?? '-',
+                    $koperasi->nama_pemilik ?? '-',
+                    $koperasi->distrik ?? '-',
+                    ucfirst($koperasi->kategori ?? '-'),
+                    ucfirst($koperasi->status_verifikasi ?? '-'),
+                    $koperasi->created_at ? $koperasi->created_at->format('d/m/Y') : '-',
+                    $koperasi->verifiedBy->name ?? '-'
+                ]);
+            }
+            
+            // Footer
+            fputcsv($file, []);
+            fputcsv($file, ['Total Koperasi: ' . $data->count()]);
+            fputcsv($file, ['Dicetak pada: ' . date('d F Y H:i:s')]);
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+}

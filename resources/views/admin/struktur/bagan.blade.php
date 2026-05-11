@@ -49,10 +49,16 @@
             <div class="card-body text-center">
                 @if($bagan && $bagan->value)
                     <img src="{{ asset('storage/'.$bagan->value) }}" class="img-fluid rounded shadow" style="max-height:350px;">
-                    <p class="mt-2 text-muted small">Bagan struktur organisasi aktif</p>
-                    <form method="POST" action="{{ route('admin.struktur.bagan.hapus') }}" onsubmit="return confirm('Yakin hapus foto bagan ini?')">
+                    <p class="mt-3 mb-2 text-muted small"><i class="fas fa-check-circle text-success mr-1"></i>Bagan struktur organisasi aktif</p>
+                    <button type="button" 
+                            class="btn btn-sm mt-2" 
+                            style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;padding:8px 16px;border-radius:8px;box-shadow:0 2px 8px rgba(239,68,68,0.3);font-weight:600"
+                            onclick="confirmDeleteBagan()">
+                        <i class="fas fa-trash mr-1"></i> Hapus Foto Bagan
+                    </button>
+                    
+                    <form id="formHapusBagan" method="POST" action="{{ route('admin.struktur.bagan.hapus') }}" style="display:none">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm mt-2"><i class="fas fa-trash mr-1"></i> Hapus Foto Bagan</button>
                     </form>
                 @else
                     <div class="py-5 text-muted">
@@ -64,6 +70,38 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Konfirmasi Hapus --}}
+<div class="modal fade" id="modalHapusBagan" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius: 12px;">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-trash mr-2"></i>Hapus Foto Bagan</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Peringatan!</strong> Tindakan ini tidak dapat dibatalkan.
+                </div>
+                <p>Apakah Anda yakin ingin menghapus foto bagan struktur organisasi?</p>
+                <p class="text-muted mb-0"><small>Foto bagan akan dihapus dari sistem dan tidak akan ditampilkan di halaman publik.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" 
+                        class="btn btn-danger" 
+                        style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;box-shadow:0 2px 8px rgba(239,68,68,0.3)"
+                        onclick="submitHapusBagan()">
+                    <i class="fas fa-trash mr-1"></i> Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 @push('scripts')
 <script>
@@ -78,5 +116,13 @@ document.querySelector('.custom-file-input').addEventListener('change', function
     };
     reader.readAsDataURL(file);
 });
+
+function confirmDeleteBagan() {
+    $('#modalHapusBagan').modal('show');
+}
+
+function submitHapusBagan() {
+    document.getElementById('formHapusBagan').submit();
+}
 </script>
 @endpush

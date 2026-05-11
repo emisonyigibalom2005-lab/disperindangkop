@@ -1,129 +1,244 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Laporan Bantuan</title>
+    <meta charset="utf-8">
+    <title>Laporan Program Bantuan Koperasi</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; font-size: 11px; color: #333; }
-
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header h2 { font-size: 16px; font-weight: bold; }
-        .header p { font-size: 11px; color: #555; margin-top: 4px; }
-
-        .meta { margin-bottom: 15px; font-size: 11px; }
-        .meta span { margin-right: 20px; }
-
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th { background-color: #2d6a4f; color: white; padding: 7px 8px; text-align: left; font-size: 10px; }
-        td { padding: 6px 8px; border-bottom: 1px solid #ddd; vertical-align: top; font-size: 10px; }
-        tr:nth-child(even) { background-color: #f5f5f5; }
-
-        .badge { padding: 2px 8px; border-radius: 3px; font-size: 9px; font-weight: bold; }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-secondary { background: #e2e3e5; color: #383d41; }
-        .badge-danger { background: #f8d7da; color: #721c24; }
-
-        .penerima-list { margin: 0; padding-left: 12px; }
-        .penerima-list li { margin-bottom: 2px; }
-
-        .footer { margin-top: 30px; text-align: right; font-size: 10px; color: #777; }
-        .ttd { margin-top: 40px; display: flex; justify-content: flex-end; }
-        .ttd-box { text-align: center; width: 200px; }
-        .ttd-box .garis { margin-top: 60px; border-top: 1px solid #333; padding-top: 4px; }
-
-        .summary { margin-bottom: 15px; display: flex; gap: 15px; }
-        .summary-item { background: #f0f0f0; padding: 8px 12px; border-radius: 4px; flex: 1; text-align: center; }
-        .summary-item .val { font-size: 18px; font-weight: bold; color: #2d6a4f; }
-        .summary-item .lbl { font-size: 9px; color: #666; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 8px;
+            line-height: 1.3;
+            color: #000;
+            padding: 15px;
+        }
+        
+        /* Kop Surat */
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #000;
+        }
+        
+        .header img {
+            width: 55px;
+            height: 55px;
+            margin-bottom: 6px;
+        }
+        
+        .header h2 {
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px 0;
+            text-transform: uppercase;
+        }
+        
+        .header p {
+            font-size: 8px;
+            margin: 1px 0;
+            color: #333;
+        }
+        
+        .header .line-double {
+            border-bottom: 1px solid #000;
+            margin-top: 2px;
+        }
+        
+        /* Title */
+        .title {
+            text-align: center;
+            margin: 10px 0 8px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #000;
+        }
+        
+        .title h1 {
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 8px;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        /* Section Title */
+        .section-title {
+            font-size: 10px;
+            margin: 15px 0 8px 0;
+            font-weight: bold;
+            color: #1a3a6e;
+            border-bottom: 2px solid #1a3a6e;
+            padding-bottom: 3px;
+        }
+        
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+        
+        table th {
+            background-color: #1a3a6e;
+            color: white;
+            font-weight: bold;
+            font-size: 7px;
+            padding: 6px 4px;
+            text-align: center;
+            border: 1px solid #000;
+            text-transform: uppercase;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        table td {
+            padding: 5px 4px;
+            border: 1px solid #333;
+            font-size: 7px;
+            vertical-align: middle;
+        }
+        
+        table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        table tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-bold {
+            font-weight: bold;
+        }
+        
+        /* Badge - No colors for print */
+        .badge {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 7px;
+            font-weight: bold;
+            background-color: transparent;
+            color: #000;
+            border: 1px solid #333;
+        }
+        
+        .badge-code,
+        .badge-info,
+        .badge-success,
+        .badge-danger,
+        .badge-warning {
+            background-color: transparent;
+            color: #000;
+            border: 1px solid #333;
+        }
+        
+        /* Summary Box */
+        .summary-box {
+            margin-top: 12px;
+            padding: 8px;
+            background-color: #f3f4f6;
+            border: 2px solid #000;
+            text-align: center;
+            font-weight: bold;
+            font-size: 9px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        /* Signature */
+        .signature {
+            margin-top: 25px;
+            text-align: right;
+            font-size: 8px;
+        }
+        
+        .signature p {
+            margin: 3px 0;
+        }
+        
+        .signature-space {
+            margin: 40px 0 6px 0;
+        }
+        
+        .signature-name {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        /* No Data */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-
-    <div class="header"><img src="http://127.0.0.1:8000/images/logo-tolikara.png" style="width:55px;height:55px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
-        <h2>LAPORAN PROGRAM BANTUAN Koperasi</h2>
-        <p>DINAS PERINDUSTRIAN, PERDAGANGAN DAN Koperasi</p>
-        <p>KABUPATEN TOLIKARA</p>
+    {{-- Kop Surat --}}
+    <div class="header">
+        @if(file_exists(public_path('images/logo-tolikara.png')))
+            <img src="{{ public_path('images/logo-tolikara.png') }}" alt="Logo">
+        @endif
+        <h2>PEMERINTAH KABUPATEN TOLIKARA</h2>
+        <h2>DINAS PERINDUSTRIAN, PERDAGANGAN DAN KOPERASI</h2>
+        <p>Jl. Raya Karubaga, Kab. Tolikara, Papua Pegunungan | Telp. (0964) 123456</p>
+        <div class="line-double"></div>
     </div>
-
-    <div class="meta">
-        <span>Tanggal Cetak: {{ date('d F Y, H:i') }} WIB</span>
-        <span>Total Program: {{ $data->count() }}</span>
-        <span>Dicetak oleh: {{ auth()->user()->name }}</span>
+    
+    {{-- Title --}}
+    <div class="title">
+        <h1>LAPORAN PROGRAM BANTUAN KOPERASI</h1>
     </div>
-
-    {{-- Summary --}}
-    <table style="margin-bottom:15px;">
-        <tr>
-            <th style="width:25%">Total Program</th>
-            <th style="width:25%">Total Anggaran</th>
-            <th style="width:25%">Total Penerima</th>
-            <th style="width:25%">Program Aktif</th>
-        </tr>
-        <tr>
-            <td><strong>{{ $data->count() }} Program</strong></td>
-            <td><strong>Rp {{ number_format($data->sum('anggaran'), 0, ',', '.') }}</strong></td>
-            <td><strong>{{ $data->sum(fn($b) => $b->penerima->count()) }} Koperasi</strong></td>
-            <td><strong>{{ $data->where('status', 'aktif')->count() }} Program</strong></td>
-        </tr>
-    </table>
-
-    {{-- Detail per Program --}}
-    @foreach ($data as $i => $bantuan)
+    
+    <div class="subtitle">
+        Per Tanggal: {{ date('d F Y') }}
+    </div>
+    
+    {{-- Tabel 1: Tren per Tahun --}}
+    @if($bantuanPerTahun->count() > 0)
+    <div class="section-title">TREN PENERIMA BANTUAN PER TAHUN</div>
     <table>
         <thead>
             <tr>
-                <th colspan="6">
-                    {{ $i + 1 }}. {{ $bantuan->nama_bantuan }}
-                    ({{ $bantuan->kode_bantuan }})
-                    — {{ ucfirst($bantuan->status) }}
-                </th>
-            </tr>
-            <tr>
-                <th style="background:#4a8c6f">Jenis</th>
-                <th style="background:#4a8c6f">Tahun</th>
-                <th style="background:#4a8c6f">Periode</th>
-                <th style="background:#4a8c6f">Anggaran</th>
-                <th style="background:#4a8c6f">Kuota</th>
-                <th style="background:#4a8c6f">Terisi</th>
+                <th style="width: 10%">No</th>
+                <th style="width: 20%">Tahun</th>
+                <th style="width: 35%">Jumlah Penerima</th>
+                <th style="width: 35%">Total Nilai Bantuan (Rp)</th>
             </tr>
         </thead>
         <tbody>
+            @foreach($bantuanPerTahun as $i => $b)
             <tr>
-                <td>{{ ucfirst($bantuan->jenis_bantuan) }}</td>
-                <td>{{ $bantuan->tahun }}</td>
-                <td>{{ $bantuan->periode }}</td>
-                <td>Rp {{ number_format($bantuan->anggaran, 0, ',', '.') }}</td>
-                <td>{{ $bantuan->kuota }}</td>
-                <td>{{ $bantuan->penerima->count() }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    @if ($bantuan->penerima->count() > 0)
-    <table style="margin-top:-15px; margin-bottom:20px;">
-        <thead>
-            <tr style="background:#eee;">
-                <th style="background:#eee; color:#333; width:30px">#</th>
-                <th style="background:#eee; color:#333">Nama Koperasi</th>
-                <th style="background:#eee; color:#333">Pemilik</th>
-                <th style="background:#eee; color:#333">Status Penerimaan</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($bantuan->penerima as $j => $penerima)
-            <tr>
-                <td>{{ $j + 1 }}</td>
-                <td>{{ $penerima->koperasi?->nama_usaha ?? '-' }}</td>
-                <td>{{ $penerima->koperasi?->nama_pemilik ?? '-' }}</td>
-                <td>
-                    <span class="badge {{ match($penerima->status) {
-                        'diterima','divalidasi' => 'badge-success',
-                        'ditolak' => 'badge-danger',
-                        default => 'badge-secondary'
-                    } }}">
-                        {{ ucfirst($penerima->status) }}
-                    </span>
+                <td class="text-center text-bold">{{ $i + 1 }}</td>
+                <td class="text-center text-bold" style="font-size:9px">{{ $b->tahun }}</td>
+                <td class="text-center">
+                    <span class="badge">{{ $b->total }} orang</span>
+                </td>
+                <td class="text-right text-bold">
+                    Rp {{ number_format($b->total_nilai, 0, ',', '.') }}
                 </td>
             </tr>
             @endforeach
@@ -131,20 +246,111 @@
     </table>
     @endif
 
-    @endforeach
+    {{-- Tabel 2: Data Pengajuan Bantuan --}}
+    @php
+        $pengajuanQuery = \App\Models\PengajuanBantuan::with(['anggota', 'periodeBantuan']);
+        
+        if (request()->filled('tahun')) {
+            $pengajuanQuery->whereHas('periodeBantuan', function($q) {
+                $q->whereYear('tanggal_mulai', request('tahun'));
+            });
+        }
+        
+        if (request()->filled('status_pengajuan')) {
+            $pengajuanQuery->where('status', request('status_pengajuan'));
+        }
+        
+        $pengajuanBantuan = $pengajuanQuery->latest()->get();
+    @endphp
 
-    <div class="footer">
-        <div class="ttd">
-            <div class="ttd-box">
-                <p>Tolikara, {{ date('d F Y') }}</p>
-                <p>Kepala Dinas</p>
-                <div class="garis">
-                    <p><strong>(__________________)</strong></p>
-                    <p>NIP. ___________________</p>
-                </div>
-            </div>
-        </div>
+    @if($pengajuanBantuan->count() > 0)
+    <div class="section-title">DATA PENGAJUAN BANTUAN</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 4%">No</th>
+                <th style="width: 10%">Tanggal</th>
+                <th style="width: 18%">Nama Pemohon</th>
+                <th style="width: 12%">Kontak</th>
+                <th style="width: 15%">Nama Usaha</th>
+                <th style="width: 10%">Jenis</th>
+                <th style="width: 13%">Jumlah (Rp)</th>
+                <th style="width: 10%">Periode</th>
+                <th style="width: 8%">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($pengajuanBantuan as $i => $p)
+            <tr>
+                <td class="text-center text-bold">{{ $i + 1 }}</td>
+                <td class="text-center">
+                    {{ $p->created_at->format('d/m/Y') }}
+                    <br><small style="color:#666;font-size:6px">{{ $p->created_at->format('H:i') }}</small>
+                </td>
+                <td class="text-bold">
+                    {{ $p->nama_pemohon }}
+                    @if($p->anggota)
+                    <br><small style="color:#666;font-size:6px">ID: {{ $p->anggota->id }}</small>
+                    @endif
+                </td>
+                <td style="font-size:7px">
+                    {{ $p->no_hp }}
+                    @if($p->email)
+                    <br><small style="color:#666;font-size:6px">{{ Str::limit($p->email, 18) }}</small>
+                    @endif
+                </td>
+                <td class="text-bold">{{ $p->nama_usaha }}</td>
+                <td class="text-center">
+                    <span class="badge">{{ $p->jenis_bantuan }}</span>
+                </td>
+                <td class="text-right text-bold">
+                    Rp {{ number_format($p->jumlah_diajukan, 0, ',', '.') }}
+                </td>
+                <td class="text-center">
+                    @if($p->periodeBantuan)
+                    <span style="font-size:7px;font-weight:bold">{{ $p->periodeBantuan->nama_periode }}</span>
+                    @else
+                    <span style="color:#999">-</span>
+                    @endif
+                </td>
+                <td class="text-center">
+                    @if($p->status === 'pending')
+                        <span class="badge">Pending</span>
+                    @elseif($p->status === 'diproses')
+                        <span class="badge">Diproses</span>
+                    @elseif($p->status === 'disetujui')
+                        <span class="badge">Disetujui</span>
+                    @elseif($p->status === 'ditolak')
+                        <span class="badge">Ditolak</span>
+                    @else
+                        <span class="badge">Selesai</span>
+                    @endif
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    
+    {{-- Summary --}}
+    <div class="summary-box">
+        Total Pengajuan: {{ $pengajuanBantuan->count() }} | 
+        Total Nilai Diajukan: Rp {{ number_format($pengajuanBantuan->sum('jumlah_diajukan'), 0, ',', '.') }} |
+        Disetujui: {{ $pengajuanBantuan->where('status', 'disetujui')->count() }} |
+        Pending: {{ $pengajuanBantuan->where('status', 'pending')->count() }}
     </div>
-
+    @else
+    <div class="no-data">
+        Belum ada data pengajuan bantuan yang tersedia
+    </div>
+    @endif
+    
+    {{-- Signature --}}
+    <div class="signature">
+        <p>Tolikara, {{ date('d F Y') }}</p>
+        <p>Kepala Dinas,</p>
+        <div class="signature-space"></div>
+        <p class="signature-name">Wugi Kogoya, S.P</p>
+        <p>NIP. 123456150890001</p>
+    </div>
 </body>
 </html>

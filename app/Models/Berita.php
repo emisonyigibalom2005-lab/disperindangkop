@@ -11,7 +11,7 @@ class Berita extends Model
 
     protected $fillable = [
         'judul', 'slug', 'thumbnail', 'konten',
-        'kategori', 'status', 'created_by', 'published_at',
+        'kategori', 'status', 'created_by', 'published_at', 'views',
     ];
 
     protected $casts = [

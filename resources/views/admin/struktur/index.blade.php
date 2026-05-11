@@ -15,9 +15,8 @@
 <div class="card card-primary card-outline">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h3 class="card-title"><i class="fas fa-sitemap mr-2"></i>Daftar Pegawai per Bidang</h3>
-        <a href="{{ route('admin.struktur.bagan') }}" class="btn btn-info btn-sm mr-2"><i class="fas fa-image mr-1"></i> Upload Bagan</a>
         <a href="{{ route('admin.struktur.create') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus mr-1"></i> Tambah Pegawai
+            <i class="fas fa-plus mr-1"></i> Tambah Struktur Organisasi
         </a>
     </div>
     <div class="card-body">
@@ -73,11 +72,29 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('admin.struktur.edit', $s->id) }}" class="btn btn-xs btn-warning"><i class="fas fa-edit"></i></a>
-                                <form method="POST" action="{{ route('admin.struktur.destroy', $s->id) }}" style="display:inline" onsubmit="return confirm('Hapus?')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
-                                </form>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ route('admin.struktur.edit', $s->id) }}" 
+                                       class="btn btn-sm" 
+                                       style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:6px 12px;border-radius:6px 0 0 6px"
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm" 
+                                            style="background:linear-gradient(135deg,#06b6d4,#0891b2);color:white;border:none;padding:6px 12px"
+                                            onclick="showDetail({{ $s->id }})"
+                                            title="Detail">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <form method="POST" action="{{ route('admin.struktur.destroy', $s->id) }}" style="display:inline" onsubmit="return confirm('Yakin ingin menghapus pegawai ini?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm" 
+                                                style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;padding:6px 12px;border-radius:0 6px 6px 0;box-shadow:0 2px 6px rgba(239,68,68,0.3)"
+                                                title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -90,9 +107,117 @@
     </div>
 </div>
 
-<div class="text-center mt-3">
-    <a href="{{ route('public.halaman', 'struktur') }}" target="_blank" class="btn btn-info">
-        <i class="fas fa-eye mr-1"></i> Lihat di Publik
-    </a>
+{{-- Modal Detail --}}
+<div class="modal fade" id="modalDetail" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 12px;">
+            <div class="modal-header" style="background: #1e3a8a; color: white;">
+                <h5 class="modal-title"><i class="fas fa-user-circle mr-2"></i>Detail Pegawai</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-5">
+                    <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                    <p class="mt-3">Memuat data...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+function showDetail(id) {
+    $('#modalDetail').modal('show');
+    $('#detailContent').html(`
+        <div class="text-center py-5">
+            <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+            <p class="mt-3">Memuat data...</p>
+        </div>
+    `);
+    
+    $.ajax({
+        url: '/admin/struktur/' + id,
+        method: 'GET',
+        success: function(response) {
+            let html = `
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <img src="${response.foto_url}" class="img-fluid rounded shadow" style="max-width: 200px; max-height: 250px; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name='+encodeURIComponent('${response.nama}')+'&size=200'">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a;">
+                                    <label class="text-muted mb-1" style="font-size:0.75rem; font-weight: 600; text-transform: uppercase;">Nama Lengkap</label>
+                                    <div class="font-weight-bold" style="font-size: 16px; color: #1a202c;">${response.nama}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a;">
+                                    <label class="text-muted mb-1" style="font-size:0.75rem; font-weight: 600; text-transform: uppercase;">Jabatan</label>
+                                    <div class="font-weight-bold" style="font-size: 14px; color: #1a202c;">${response.jabatan}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a;">
+                                    <label class="text-muted mb-1" style="font-size:0.75rem; font-weight: 600; text-transform: uppercase;">Sub Jabatan</label>
+                                    <div class="font-weight-bold" style="font-size: 14px; color: #1a202c;">${response.sub_jabatan || '-'}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a;">
+                                    <label class="text-muted mb-1" style="font-size:0.75rem; font-weight: 600; text-transform: uppercase;">NIP</label>
+                                    <div class="font-weight-bold" style="font-size: 14px; color: #1a202c;">${response.nip || '-'}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a;">
+                                    <label class="text-muted mb-1" style="font-size:0.75rem; font-weight: 600; text-transform: uppercase;">Bidang</label>
+                                    <div class="font-weight-bold" style="font-size: 14px; color: #1a202c;">${response.bidang_label}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a;">
+                                    <label class="text-muted mb-1" style="font-size:0.75rem; font-weight: 600; text-transform: uppercase;">Urutan</label>
+                                    <div class="font-weight-bold" style="font-size: 14px; color: #1a202c;">${response.urutan}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 3px solid #1e3a8a;">
+                                    <label class="text-muted mb-1" style="font-size:0.75rem; font-weight: 600; text-transform: uppercase;">Status</label>
+                                    <div>
+                                        ${response.is_active ? '<span class="badge badge-success" style="padding:6px 12px;font-size:12px">Aktif</span>' : '<span class="badge badge-secondary" style="padding:6px 12px;font-size:12px">Nonaktif</span>'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#detailContent').html(html);
+        },
+        error: function() {
+            $('#detailContent').html(`
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Gagal memuat data. Silakan coba lagi.
+                </div>
+            `);
+        }
+    });
+}
+</script>
+
+<style>
+.btn-group button:hover, .btn-group a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    transition: all 0.2s ease;
+}
+</style>
 @endsection

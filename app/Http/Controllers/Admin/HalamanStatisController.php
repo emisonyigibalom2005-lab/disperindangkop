@@ -7,10 +7,19 @@ use Illuminate\Support\Facades\Storage;
 
 class HalamanStatisController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $halamanList = HalamanStatis::all();
-        return view('admin.halaman_statis.index', compact('halamanList'));
+        $query = HalamanStatis::query();
+        
+        // Filter untuk Visi & Misi
+        if ($request->get('filter') == 'visi-misi') {
+            $query->where('slug', 'visi-misi');
+        }
+        
+        $halamanList = $query->get();
+        $filter = $request->get('filter');
+        
+        return view('admin.halaman_statis.index', compact('halamanList', 'filter'));
     }
     public function create()
     {

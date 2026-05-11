@@ -52,9 +52,10 @@
                     <div class="form-group">
                         <label>Status</label>
                         <select name="status" class="form-control">
-                            <option value="aktif">Aktif</option>
+                            <option value="dibuka">Dibuka</option>
+                            <option value="berlangsung">Berlangsung</option>
+                            <option value="ditutup">Ditutup</option>
                             <option value="selesai">Selesai</option>
-                            <option value="dibatalkan">Dibatalkan</option>
                         </select>
                     </div>
                     <div class="form-group">

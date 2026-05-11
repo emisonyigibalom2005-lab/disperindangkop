@@ -5,6 +5,71 @@
 @section("breadcrumb")
 <li class="breadcrumb-item active">Pengumuman</li>
 @endsection
+
+@push('styles')
+<style>
+    /* Tombol Aksi Custom */
+    .btn-group .btn-sm {
+        padding: 6px 12px;
+        border-radius: 0;
+    }
+    
+    .btn-group .btn-sm:first-child {
+        border-radius: 6px 0 0 6px;
+    }
+    
+    .btn-group .btn-sm:last-child {
+        border-radius: 0 6px 6px 0;
+    }
+    
+    /* Tombol Detail - Cyan */
+    .btn-group .btn-info {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        border-color: #06b6d4;
+        color: white;
+    }
+    
+    .btn-group .btn-info:hover {
+        background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+        border-color: #0891b2;
+    }
+    
+    /* Tombol Edit - Navy Blue */
+    .btn-group .btn-primary {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        border-color: #1e3a8a;
+        color: white;
+    }
+    
+    .btn-group .btn-primary:hover {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        border-color: #1e40af;
+    }
+    
+    /* Tombol Hapus - MERAH */
+    .btn-group .btn-danger,
+    .btn-group button.btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        border-color: #ef4444 !important;
+        color: white !important;
+    }
+    
+    .btn-group .btn-danger:hover,
+    .btn-group button.btn-danger:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+        border-color: #dc2626 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+    }
+    
+    /* Tombol Lock - Abu-abu */
+    .btn-group .btn-secondary {
+        background: #6b7280;
+        border-color: #6b7280;
+    }
+</style>
+@endpush
+
 @section("content")
 @if(session("success"))
 <div class="alert alert-success alert-dismissible fade show">
@@ -57,14 +122,25 @@
                         </form>
                     </td>
                     <td>
-                        <a href="{{ route('admin.pengumuman.edit', $p) }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="{{ route('admin.pengumuman.destroy', $p) }}" method="POST" class="d-inline"
-                              onsubmit="return confirm('Hapus pengumuman ini?')">
-                            @csrf @method("DELETE")
-                            <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                        </form>
+                        <div class="btn-group" role="group">
+                            <a href="{{ route('admin.pengumuman.show', $p) }}" class="btn btn-sm btn-info" title="Detail">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            @if($p->user && $p->user->role == 'admin')
+                            <a href="{{ route('admin.pengumuman.edit', $p) }}" class="btn btn-sm btn-primary" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ route('admin.pengumuman.destroy', $p) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('Hapus pengumuman ini?')">
+                                @csrf @method("DELETE")
+                                <button type="submit" class="btn btn-sm btn-danger" title="Hapus"><i class="fas fa-trash"></i></button>
+                            </form>
+                            @else
+                            <button class="btn btn-sm btn-secondary disabled" title="Dibuat oleh {{ ucfirst($p->user->role ?? 'user lain') }}">
+                                <i class="fas fa-lock"></i>
+                            </button>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @empty

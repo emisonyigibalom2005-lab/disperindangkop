@@ -21,7 +21,9 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                // Jika user sudah login dan mengakses halaman login/register, redirect ke dashboard sesuai role
+                $user = Auth::guard($guard)->user();
+                return redirect($user->getDashboardRoute());
             }
         }
 

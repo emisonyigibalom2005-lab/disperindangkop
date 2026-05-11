@@ -3,11 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | DISPERINDAGKOP Tolikara</title>
+<title>Login | {{ app_name() }}</title>
+<link rel="icon" type="image/png" href="{{ app_favicon() }}">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
-:root{--navy:#0d2240;--blue:#1a3a6e;--red:#c8102e;--gold:#f5a623;--white:#fff;--gray-50:#f8fafc;--gray-200:#e2e8f0;--gray-400:#94a3b8;--gray-600:#475569;--gray-800:#1e293b;}
+:root{
+    --navy:{{ theme_color('primary') }};
+    --blue:{{ theme_color('secondary') }};
+    --red:{{ theme_color('danger') }};
+    --gold:{{ theme_color('warning') }};
+    --white:#fff;
+    --gray-50:#f8fafc;
+    --gray-200:#e2e8f0;
+    --gray-400:#94a3b8;
+    --gray-600:#475569;
+    --gray-800:#1e293b;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
     font-family:'Plus Jakarta Sans',sans-serif;
@@ -128,9 +140,9 @@ body::after{content:'';position:fixed;width:500px;height:500px;border-radius:50%
     <div class="card-stripe"></div>
 
     <div class="card-header">
-        <div class="header-logo"><img src="{{ asset('images/logo.login.png') }}" alt="Logo Tolikara" style="height:60px;width:auto;"></div>
-        <h1 class="header-title">DISPERINDAGKOP <em>Tolikara</em></h1>
-        <p class="header-sub">Sistem Informasi Perindustrian, Perdagangan, Koperasi &amp; Koperasi</p>
+        <div class="header-logo"><img src="{{ app_logo_login() }}" alt="Logo {{ app_name() }}" style="height:60px;width:auto;"></div>
+        <h1 class="header-title">{{ app_name() }} <em>{{ setting('app_short_name', 'Tolikara') }}</em></h1>
+        <p class="header-sub">{{ setting('app_description', 'Sistem Informasi Manajemen Koperasi') }}</p>
     </div>
 
     <div class="card-body">
@@ -165,13 +177,15 @@ body::after{content:'';position:fixed;width:500px;height:500px;border-radius:50%
             </div>
             <div class="options-row">
                 <label class="check-label"><input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Ingat saya</label>
-                <a href="{{ route('password.request') }}" class="link-blue">Lupa password?</a>
+                <a href="{{ route('pendaftaran.landing') }}" class="link-blue">
+                    <i class="fas fa-user-plus mr-1"></i> 
+                </a>
             </div>
             <button type="submit" class="btn-submit"><i class="fas fa-sign-in-alt"></i> Masuk Sekarang</button>
         </form>
         <div class="register-row">
             Belum punya akun? 
-            <a href="{{ route('register') }}">Daftar Koperasi</a>
+            <a href="{{ route('register') }}">Lupa password</a>
         </div>
 
 

@@ -24,6 +24,10 @@ class Jadwal extends Model
     public function getJenisColorAttribute() {
         return ["verifikasi"=>"info","pelatihan"=>"success","penilaian_bantuan"=>"warning","rapat"=>"primary"][$this->jenis] ?? "secondary";
     }
+    public function getHariAttribute() {
+        $hari = ["Sunday"=>"Minggu","Monday"=>"Senin","Tuesday"=>"Selasa","Wednesday"=>"Rabu","Thursday"=>"Kamis","Friday"=>"Jumat","Saturday"=>"Sabtu"];
+        return $hari[$this->tanggal->format('l')] ?? $this->tanggal->format('l');
+    }
     public function scopeAktif($q)  { return $q->whereIn("status",["dijadwalkan","berlangsung"]); }
     public function scopePublik($q) { return $q->where("is_publik", true); }
 }

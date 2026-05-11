@@ -18,22 +18,22 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --sidebar-bg: #1a2942;
-            --sidebar-hover: #243654;
-            --sidebar-active: #2d4a7a;
-            --sidebar-text: #a8b8d0;
+            --sidebar-bg: #2c4a6e;
+            --sidebar-hover: #3d5a7e;
+            --sidebar-active: #4a6a8f;
+            --sidebar-text: #b8c5d6;
             --sidebar-text-active: #ffffff;
-            --topbar-height: 64px;
-            --primary: #2563eb;
-            --accent: #38bdf8;
+            --topbar-height: 60px;
+            --primary: #3498db;
+            --accent: #ffc107;
         }
 
         * { box-sizing: border-box; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #f1f5f9;
-            color: #1e293b;
+            background: #f5f7fa;
+            color: #2c3e50;
             margin: 0;
         }
 
@@ -42,106 +42,85 @@
             position: fixed;
             top: 0; left: 0; bottom: 0;
             width: var(--sidebar-width);
-            background: var(--sidebar-bg);
+            background: linear-gradient(180deg, #2c4a6e 0%, #1e3a5f 100%);
             display: flex;
             flex-direction: column;
             z-index: 1040;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: #2d4a7a transparent;
+            scrollbar-color: #3d5a7e transparent;
             transition: transform .3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.15);
         }
 
         .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-thumb { background: #2d4a7a; border-radius: 2px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #3d5a7e; border-radius: 2px; }
 
         .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 20px 20px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            gap: 12px;
+            padding: 18px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             text-decoration: none;
+            background: rgba(0,0,0,0.1);
         }
 
         .sidebar-brand-icon {
-            width: 38px; height: 38px;
-            background: var(--primary);
+            width: 50px; 
+            height: 50px;
+            background: white;
             border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            color: white;
-            font-size: 16px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
             flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .sidebar-brand-icon i {
+            color: #2c4a6e;
+            font-size: 24px;
         }
 
         .sidebar-brand-text .title {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             color: #fff;
             line-height: 1.2;
             letter-spacing: .3px;
+            text-transform: uppercase;
         }
 
         .sidebar-brand-text .subtitle {
-            font-size: 10px;
-            color: var(--sidebar-text);
+            font-size: 11px;
+            color: #b8c5d6;
             line-height: 1.3;
-        }
-
-        /* User Info */
-        .sidebar-user {
-            padding: 14px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar-user-avatar {
-            width: 36px; height: 36px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-
-        .sidebar-user-name {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #fff;
-            line-height: 1.2;
-        }
-
-        .sidebar-user-role {
-            font-size: 10.5px;
-            color: var(--sidebar-text);
         }
 
         /* Nav */
         .sidebar-nav { padding: 10px 0 20px; flex: 1; }
 
         .nav-section-label {
-            padding: 14px 20px 5px;
-            font-size: 9.5px;
+            padding: 14px 16px 6px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.2px;
-            color: #5a7090;
+            color: #7a92ab;
         }
 
         .nav-item-link {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 9px 20px;
+            gap: 12px;
+            padding: 11px 16px;
+            margin: 2px 12px;
             color: var(--sidebar-text);
             text-decoration: none;
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 500;
-            border-radius: 0;
+            border-radius: 8px;
             transition: all .2s;
             position: relative;
         }
@@ -154,33 +133,30 @@
         .nav-item-link.active {
             background: var(--sidebar-active);
             color: var(--sidebar-text-active);
-        }
-
-        .nav-item-link.active::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 3px;
-            background: var(--accent);
-            border-radius: 0 2px 2px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .nav-item-link .nav-icon {
             width: 20px;
             text-align: center;
-            font-size: 13px;
-            opacity: .85;
+            font-size: 15px;
+            opacity: .9;
             flex-shrink: 0;
         }
 
         /* Submenu */
-        .nav-submenu { background: rgba(0,0,0,0.15); }
+        .nav-submenu { 
+            background: rgba(0,0,0,0.12);
+            padding: 4px 0;
+            margin: 0 12px;
+            border-radius: 6px;
+        }
 
         .nav-submenu-link {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 7px 20px 7px 46px;
+            gap: 10px;
+            padding: 8px 16px 8px 48px;
             color: var(--sidebar-text);
             text-decoration: none;
             font-size: 12.5px;
@@ -188,28 +164,37 @@
             transition: all .2s;
         }
 
-        .nav-submenu-link:hover { color: #fff; background: rgba(255,255,255,0.04); }
-        .nav-submenu-link.active { color: var(--accent); font-weight: 600; }
+        .nav-submenu-link:hover { 
+            color: #fff; 
+            background: rgba(255,255,255,0.06);
+        }
+        
+        .nav-submenu-link.active { 
+            color: var(--accent); 
+            font-weight: 600;
+            background: rgba(255, 193, 7, 0.08);
+        }
 
         .nav-submenu-link::before {
             content: '';
             width: 5px; height: 5px;
             background: currentColor;
             border-radius: 50%;
-            opacity: .6;
+            opacity: .7;
             flex-shrink: 0;
         }
 
         /* Badge in sidebar */
         .sidebar-badge {
             margin-left: auto;
-            background: #ef4444;
-            color: white;
-            font-size: 9px;
+            background: #ffc107;
+            color: #1e3a5f;
+            font-size: 10px;
             font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 10px;
-            line-height: 1.4;
+            padding: 3px 8px;
+            border-radius: 12px;
+            line-height: 1.2;
+            box-shadow: 0 2px 6px rgba(255, 193, 7, 0.35);
         }
 
         /* Collapse toggle arrow */
@@ -230,59 +215,64 @@
             right: 0;
             height: var(--topbar-height);
             background: white;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e8ecf1;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 24px;
             z-index: 1030;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
         .topbar-left { display: flex; align-items: center; gap: 12px; }
-        .topbar-right { display: flex; align-items: center; gap: 6px; }
+        .topbar-right { display: flex; align-items: center; gap: 8px; }
 
         .topbar-toggle {
             background: none; border: none;
-            padding: 6px 8px;
+            padding: 8px 10px;
             border-radius: 8px;
-            color: #64748b;
+            color: #7a92ab;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
             display: none;
         }
 
-        .topbar-toggle:hover { background: #f1f5f9; }
+        .topbar-toggle:hover { background: #f5f7fa; color: #2c4a6e; }
 
-        .topbar-breadcrumb { font-size: 13px; color: #94a3b8; }
-        .topbar-breadcrumb .current { color: #1e293b; font-weight: 600; }
+        .topbar-breadcrumb { font-size: 13px; color: #7a92ab; }
+        .topbar-breadcrumb .current { color: #2c4a6e; font-weight: 600; }
 
         .topbar-btn {
             width: 38px; height: 38px;
-            border-radius: 10px;
+            border-radius: 8px;
             border: none;
-            background: #f8fafc;
-            color: #64748b;
+            background: #f5f7fa;
+            color: #7a92ab;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
             position: relative;
             text-decoration: none;
-            transition: background .2s;
+            transition: all .2s;
         }
 
-        .topbar-btn:hover { background: #e2e8f0; color: #1e293b; }
+        .topbar-btn:hover { 
+            background: #2c4a6e; 
+            color: white;
+            box-shadow: 0 3px 10px rgba(44, 74, 110, 0.25);
+        }
 
         .topbar-badge {
             position: absolute;
-            top: -3px; right: -3px;
-            background: #ef4444;
-            color: white;
+            top: -4px; right: -4px;
+            background: #ffc107;
+            color: #1e3a5f;
             font-size: 9px;
             font-weight: 700;
-            width: 16px; height: 16px;
+            width: 18px; height: 18px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(255, 193, 7, 0.35);
         }
 
         /* ── MAIN CONTENT ────────────────────────────── */
@@ -290,6 +280,7 @@
             margin-left: var(--sidebar-width);
             padding-top: var(--topbar-height);
             min-height: 100vh;
+            background: #f5f7fa;
         }
 
         .content-wrapper { padding: 24px; }
@@ -297,31 +288,37 @@
         /* ── PAGE HEADER ─────────────────────────────── */
         .page-header {
             background: white;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e8ecf1;
             padding: 16px 24px;
             margin-bottom: 24px;
             margin-left: -24px;
             margin-right: -24px;
             margin-top: -24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
 
         /* ── ALERTS ──────────────────────────────────── */
-        .alert { border: none; border-radius: 12px; font-size: 13.5px; }
-        .alert-success { background: #f0fdf4; color: #166534; }
-        .alert-danger  { background: #fff1f2; color: #991b1b; }
-        .alert-warning { background: #fffbeb; color: #92400e; }
-        .alert-info    { background: #eff6ff; color: #1e40af; }
+        .alert { border: none; border-radius: 10px; font-size: 13.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .alert-success { background: #d4edda; color: #155724; border-left: 3px solid #28a745; }
+        .alert-danger  { background: #f8d7da; color: #721c24; border-left: 3px solid #dc3545; }
+        .alert-warning { background: #fff3cd; color: #856404; border-left: 3px solid #ffc107; }
+        .alert-info    { background: #d1ecf1; color: #0c5460; border-left: 3px solid #17a2b8; }
 
         /* ── CARDS ───────────────────────────────────── */
-        .card { border-radius: 14px; }
+        .card { 
+            border-radius: 12px; 
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
 
         /* ── FOOTER ──────────────────────────────────── */
         .main-footer {
             padding: 16px 24px;
             font-size: 12px;
-            color: #94a3b8;
-            border-top: 1px solid #e2e8f0;
-            margin-top: 16px;
+            color: #7a92ab;
+            border-top: 1px solid #e8ecf1;
+            margin-top: 20px;
+            background: white;
         }
 
         /* ── MOBILE ──────────────────────────────────── */
@@ -354,24 +351,13 @@
     {{-- Brand --}}
     <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
         <div class="sidebar-brand-icon">
-            <i class="fas fa-industry"></i>
+            <i class="fas fa-building" style="color: #2c4a6e; font-size: 28px;"></i>
         </div>
         <div class="sidebar-brand-text">
             <div class="title">DISPERINDAGKOP</div>
             <div class="subtitle">Kab. Tolikara</div>
         </div>
     </a>
-
-    {{-- User --}}
-    <div class="sidebar-user">
-        <div class="sidebar-user-avatar">
-            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-        </div>
-        <div>
-            <div class="sidebar-user-name">{{ auth()->user()->name }}</div>
-            <div class="sidebar-user-role text-capitalize">{{ auth()->user()->role }}</div>
-        </div>
-    </div>
 
     {{-- Navigation --}}
     <nav class="sidebar-nav">
@@ -434,23 +420,78 @@
             </a>
         </div>
 
+        {{-- JADWAL KEGIATAN --}}
+        <div class="nav-section-label">Jadwal Kegiatan</div>
+
+        <a href="#menuJadwal" class="nav-item-link {{ request()->routeIs('admin.jadwal.*') ? '' : 'collapsed' }}"
+           data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.jadwal.*') ? 'true' : 'false' }}">
+            <span class="nav-icon"><i class="fas fa-calendar-alt"></i></span>
+            Jadwal Kegiatan
+            <i class="fas fa-chevron-right nav-arrow"></i>
+        </a>
+        <div class="collapse nav-submenu {{ request()->routeIs('admin.jadwal.*') ? 'show' : '' }}" id="menuJadwal">
+            <a href="#" class="nav-submenu-link">
+                Semua Jadwal
+            </a>
+            <a href="#" class="nav-submenu-link">
+                Tambah Jadwal
+            </a>
+        </div>
+
+        {{-- KOMUNIKASI --}}
+        <div class="nav-section-label">Komunikasi</div>
+
+        <a href="{{ route('admin.chat.index') }}"
+           class="nav-item-link {{ request()->routeIs('admin.chat.*') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fas fa-comments"></i></span>
+            Chat & Pesan
+        </a>
+
+        {{-- KEANGGOTAAN --}}
+        <div class="nav-section-label">Keanggotaan</div>
+
+        <a href="{{ route('admin.anggota.verifikasi') }}"
+           class="nav-item-link {{ request()->routeIs('admin.anggota.verifikasi') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fas fa-user-check"></i></span>
+            Verifikasi Anggota
+            @php $pendingAnggota = \App\Models\Anggota::where('status','Pending')->count() @endphp
+            @if($pendingAnggota > 0)
+                <span class="sidebar-badge">{{ $pendingAnggota }}</span>
+            @endif
+        </a>
+
+        <a href="{{ route('admin.anggota.index') }}"
+           class="nav-item-link {{ request()->routeIs('admin.anggota.index') || request()->routeIs('admin.anggota.show') || request()->routeIs('admin.anggota.edit') ? 'active' : '' }}">
+            <span class="nav-icon"><i class="fas fa-users"></i></span>
+            Data Anggota
+        </a>
+
         {{-- INFORMASI --}}
         <div class="nav-section-label">Informasi</div>
 
-        <a href="#menuBerita" class="nav-item-link {{ request()->routeIs('admin.berita.*') ? '' : 'collapsed' }}"
-           data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.berita.*') ? 'true' : 'false' }}">
-            <span class="nav-icon"><i class="fas fa-newspaper"></i></span>
-            Berita & Pengumuman
+        {{-- Modul Informasi (Dropdown) --}}
+        <a href="#menuModulInformasi" class="nav-item-link {{ request()->routeIs('admin.berita.*') || request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kontak.*') || request()->routeIs('admin.visi-misi.*') ? '' : 'collapsed' }}"
+           data-bs-toggle="collapse" aria-expanded="{{ request()->routeIs('admin.berita.*') || request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kontak.*') || request()->routeIs('admin.visi-misi.*') ? 'true' : 'false' }}">
+            <span class="nav-icon"><i class="fas fa-info-circle"></i></span>
+            Modul Informasi
             <i class="fas fa-chevron-right nav-arrow"></i>
         </a>
-        <div class="collapse nav-submenu {{ request()->routeIs('admin.berita.*') ? 'show' : '' }}" id="menuBerita">
+        <div class="collapse nav-submenu {{ request()->routeIs('admin.berita.*') || request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kontak.*') || request()->routeIs('admin.visi-misi.*') ? 'show' : '' }}" id="menuModulInformasi">
             <a href="{{ route('admin.berita.index') }}"
-               class="nav-submenu-link {{ request()->routeIs('admin.berita.index') ? 'active' : '' }}">
-                Semua Berita
+               class="nav-submenu-link {{ request()->routeIs('admin.berita.*') ? 'active' : '' }}">
+                <i class="far fa-circle mr-2"></i> Berita
             </a>
-            <a href="{{ route('admin.berita.create') }}"
-               class="nav-submenu-link {{ request()->routeIs('admin.berita.create') ? 'active' : '' }}">
-                Tulis Berita
+            <a href="{{ route('admin.pengumuman.index') }}"
+               class="nav-submenu-link {{ request()->routeIs('admin.pengumuman.*') ? 'active' : '' }}">
+                <i class="fas fa-bullhorn mr-2"></i> Pengumuman
+            </a>
+            <a href="{{ route('admin.kontak.index') }}"
+               class="nav-submenu-link {{ request()->routeIs('admin.kontak.*') ? 'active' : '' }}">
+                <i class="far fa-circle mr-2"></i> Pesan Masuk
+            </a>
+            <a href="{{ route('admin.visi-misi.index') }}"
+               class="nav-submenu-link {{ request()->routeIs('admin.visi-misi.*') ? 'active' : '' }}">
+                <i class="far fa-circle mr-2"></i> Visi & Misi
             </a>
         </div>
 
@@ -469,15 +510,8 @@
             </a>
         </div>
 
-        {{-- Pesan Masuk --}}
-        <a href="{{ route('admin.kontak.index') }}"
-           class="nav-item-link {{ request()->routeIs('admin.kontak.*') ? 'active' : '' }}">
-            <span class="nav-icon"><i class="fas fa-envelope"></i></span>
-            Pesan Masuk
-        </a>
-
         <a href="{{ route('admin.halaman-statis.index') }}"
-           class="nav-item-link {{ request()->routeIs('admin.halaman-statis.*') ? 'active' : '' }}">
+           class="nav-item-link {{ request()->routeIs('admin.halaman-statis.*') && !request()->get('filter') ? 'active' : '' }}">
             <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
             Profil
         </a>

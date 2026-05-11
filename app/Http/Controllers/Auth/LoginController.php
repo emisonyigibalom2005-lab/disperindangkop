@@ -38,11 +38,28 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $user = Auth::user();
 
+            // Cek apakah user aktif
             if (!$user->is_active) {
                 Auth::logout();
                 return back()->withErrors([
                     'email' => 'Akun Anda telah dinonaktifkan. Hubungi administrator.'
                 ]);
+            }
+
+            // Cek status anggota jika role = anggota (HANYA BLOKIR YANG NONAKTIF)
+            if ($user->role === 'anggota') {
+                $anggota = $user->anggota;
+                
+                // NONAKTIF - Tidak bisa login
+                if ($anggota && $anggota->status === 'Nonaktif') {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Akun anggota Anda sudah tidak aktif. Hubungi administrator untuk informasi lebih lanjut.'
+                    ]);
+                }
+                
+                // PENDING, AKTIF, DITOLAK - SEMUA BISA LOGIN
+                // Jika ditolak, bisa lengkapi data di dashboard
             }
 
             $request->session()->regenerate();
@@ -87,7 +104,7 @@ class LoginController extends Controller
     // ── Register (untuk KOPERASI) ──────────────────────────────────
     public function showRegisterForm()
     {
-        return view('auth.register', ['distrik' => Koperasi::listDistrik()]);
+        return view('auth.register');
     }
 
     public function register(Request $request)
@@ -96,13 +113,14 @@ class LoginController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'nama_usaha' => 'required|string|max:255',
-            'jenis_usaha' => 'required|string|max:100',
-            'no_ktp' => 'required|string|max:20',
-            'alamat' => 'required|string',
-            'distrik' => 'required|string',
-            'kelurahan' => 'required|string',
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         $user = User::create([
@@ -110,29 +128,34 @@ class LoginController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'koperasi',
-            'phone' => $request->phone,
             'is_active' => true,
         ]);
 
+        // Buat data koperasi dasar
         Koperasi::create([
             'user_id' => $user->id,
             'no_registrasi' => Koperasi::generateNoRegistrasi(),
-            'no_ktp' => $request->no_ktp,
             'nama_pemilik' => $request->name,
-            'nama_usaha' => $request->nama_usaha,
-            'jenis_usaha' => $request->jenis_usaha,
-            'kategori' => 'mikro',
-            'alamat' => $request->alamat,
-            'distrik' => $request->distrik,
-            'kelurahan' => $request->kelurahan,
-            'no_telp' => $request->phone,
+            'nama_usaha' => $request->name . ' - Koperasi',
             'email' => $request->email,
+            'kategori' => 'mikro',
+            'status_verifikasi' => 'pending',
+            'status_usaha' => 'aktif',
         ]);
 
         Auth::login($user);
 
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'action' => 'register',
+            'module' => 'Auth',
+            'description' => $user->name . ' melakukan registrasi akun koperasi',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         return redirect()->route('koperasi.dashboard')
-            ->with('success', 'Pendaftaran berhasil! Silahkan lengkapi dokumen KOPERASI Anda.');
+            ->with('success', 'Pendaftaran berhasil! Silahkan lengkapi data koperasi Anda.');
     }
 
     // ── Forgot Password ───────────────────────────────────────

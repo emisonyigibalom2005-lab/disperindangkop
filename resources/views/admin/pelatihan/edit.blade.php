@@ -7,7 +7,9 @@
 @endsection
 @section('content')
 <div class="card card-warning card-outline">
-    <div class="card-header"><h3 class="card-title"><i class="fas fa-edit mr-2"></i>Edit: {{ $pelatihan->judul }}</h3></div>
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-edit mr-2"></i>Edit: {{ $pelatihan->judul }}</h3>
+    </div>
     <form method="POST" action="{{ route('admin.pelatihan.update', $pelatihan) }}" enctype="multipart/form-data">
         @csrf @method('PUT')
         <div class="card-body">
@@ -15,7 +17,8 @@
                 <div class="col-md-8">
                     <div class="form-group">
                         <label>Judul Pelatihan <span class="text-danger">*</span></label>
-                        <input type="text" name="judul" class="form-control" value="{{ old('judul',$pelatihan->judul) }}" required>
+                        <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul',$pelatihan->judul) }}" required>
+                        @error('judul')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
                         <label>Deskripsi</label>
@@ -32,8 +35,9 @@
                         <input type="text" name="penyelenggara" class="form-control" value="{{ old('penyelenggara',$pelatihan->penyelenggara) }}">
                     </div>
                     <div class="form-group">
-                        <label>Tanggal Mulai</label>
-                        <input type="date" name="tanggal_mulai" class="form-control" value="{{ old('tanggal_mulai',$pelatihan->tanggal_mulai->format('Y-m-d')) }}" required>
+                        <label>Tanggal Mulai <span class="text-danger">*</span></label>
+                        <input type="date" name="tanggal_mulai" class="form-control @error('tanggal_mulai') is-invalid @enderror" value="{{ old('tanggal_mulai',$pelatihan->tanggal_mulai->format('Y-m-d')) }}" required>
+                        @error('tanggal_mulai')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="form-group">
                         <label>Tanggal Selesai</label>
@@ -44,24 +48,29 @@
                         <input type="text" name="lokasi" class="form-control" value="{{ old('lokasi',$pelatihan->lokasi) }}">
                     </div>
                     <div class="form-group">
-                        <label>Kuota</label>
+                        <label>Kuota Peserta</label>
                         <input type="number" name="kuota" class="form-control" value="{{ old('kuota',$pelatihan->kuota) }}" min="0">
                     </div>
                     <div class="form-group">
                         <label>Status</label>
                         <select name="status" class="form-control">
-                            @foreach(['aktif'=>'Aktif','selesai'=>'Selesai','dibatalkan'=>'Dibatalkan'] as $v=>$l)
+                            @foreach(['dibuka'=>'Dibuka','berlangsung'=>'Berlangsung','ditutup'=>'Ditutup','selesai'=>'Selesai'] as $v=>$l)
                             <option value="{{ $v }}" {{ old('status',$pelatihan->status)==$v?'selected':'' }}>{{ $l }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Foto</label>
-                        @if($pelatihan->foto)<img src="{{ $pelatihan->foto_url }}" class="img-fluid rounded mb-2" style="max-height:100px;">@endif
+                        @if($pelatihan->foto)
+                        <div class="mb-2">
+                            <img src="{{ $pelatihan->foto_url }}" class="img-fluid rounded" style="max-height:150px;">
+                        </div>
+                        @endif
                         <div class="custom-file">
                             <input type="file" name="foto" class="custom-file-input" id="foto" accept="image/*">
-                            <label class="custom-file-label" for="foto">Ganti foto...</label>
+                            <label class="custom-file-label" for="foto">{{ $pelatihan->foto ? 'Ganti foto...' : 'Pilih foto...' }}</label>
                         </div>
+                        <small class="form-text text-muted">Kosongkan jika tidak ingin mengubah foto</small>
                     </div>
                 </div>
             </div>
@@ -73,3 +82,10 @@
     </form>
 </div>
 @endsection
+@push('scripts')
+<script>
+document.querySelector('.custom-file-input').addEventListener('change',function(e){
+    document.querySelector('.custom-file-label').textContent=e.target.files[0]?e.target.files[0].name:'Pilih foto...';
+});
+</script>
+@endpush

@@ -4,19 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'DISPERINDAGKOP Tolikara')</title>
-    <meta name="description"
-        content="@yield('meta_desc', 'Sistem Informasi Perindustrian, Perdagangan, Koperasi Kabupaten Tolikara')">
+    <title>@yield('title', app_name())</title>
+    <meta name="description" content="@yield('meta_desc', setting('app_description', 'Sistem Informasi Manajemen Koperasi'))">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ app_favicon() }}">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary: #1a3a6e;
-            --secondary: #c8102e;
-            --accent: #f5a623;
+            --primary: {{ theme_color('primary') }};
+            --secondary: {{ theme_color('secondary') }};
+            --topbar: {{ theme_color('topbar') }};
+            --topbar-secondary: {{ theme_color('topbar_secondary') }};
+            --accent: {{ theme_color('warning') }};
+            --success: {{ theme_color('success') }};
+            --danger: {{ theme_color('danger') }};
             --light: #f8f9fa;
         }
 
@@ -34,7 +40,7 @@
 
         /* ══ TOP BAR ═══════════════════════════════════ */
         .topbar {
-            background: var(--secondary);
+            background: var(--primary);
             color: #fff;
             font-size: 12px;
             padding: 7px 0;
@@ -1017,349 +1023,151 @@
 
 <body>
 
-    {{-- ══ TOP BAR ══════════════════════════════════ --}}
-    <div class="topbar d-none d-md-block">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center" style="gap:20px">
-                    <span class="topbar-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Jl. Raya Karubaga, Kab. Tolikara, Papua Pegunungan
-                    </span>
-                    <span style="opacity:.4">|</span>
-                    <span class="topbar-item">
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:0964123456">(0964) 123456</a>
-                    </span>
-                </div>
-                <div class="d-flex align-items-center" style="gap:20px">
-                    <span class="topbar-item">
-                        <i class="fas fa-clock"></i>
-                        <span id="jamTopbar">Senin–Jumat: 08.00–16.00 WIT</span>
-                    </span>
-                    <span style="opacity:.4">|</span>
-                    <span class="topbar-item">
-                        <i class="fas fa-envelope"></i>
-                        <a href="mailto:info@disperindagkop.tolikara.go.id">info@disperindagkop.tolikara.go.id</a>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ══ NAVBAR ════════════════════════════════════ --}}
-    <nav class="navbar navbar-expand-lg navbar-main sticky-top">
-        <div class="container">
-
-            {{-- Logo Kiri --}}
-            <img src="{{ asset('images/logo-dinas.png') }}" alt="Logo-dinas.png" style="height:42px;width:auto;margin-right:10px">
-           <div class="brand-text">
-             <strong>DISPERINDAGKOP</strong>
-             <span>Kabupaten Tolikara</span>
-              </div>
-            </a>
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navMenu">
-                <i class="fas fa-bars" style="color:#fff;font-size:18px"></i>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navMenu">
-
-                {{-- Menu Tengah --}}
-                <ul class="navbar-nav mx-auto">
-
-                    {{-- Beranda --}}
-                    <li class="nav-item {{ request()->routeIs('public.home') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('public.home') }}">
-                            <i class="fas fa-home mr-1"></i> Beranda
-                        </a>
-                    </li>
-
-                    {{-- PROFIL dropdown --}}
-                    <li class="nav-item dropdown {{ request()->routeIs('public.tentang') ? 'active' : '' }}">
-                        <a class="nav-link dropdown-toggle" href="#" id="dropProfil" role="button"
-                            data-toggle="dropdown">
-                            <i class="fas fa-building mr-1"></i> Profil
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="dropProfil">
-                            <a class="dropdown-item" href="{{ route('public.halaman', 'visi-misi') }}">
-                                <i class="fas fa-bullseye"></i> Visi &amp; Misi
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ route('public.halaman', 'perindustrian') }}">
-                                <i class="fas fa-industry"></i> Perindustrian
-                            </a>
-                            <a class="dropdown-item" href="{{ route('public.halaman', 'perdagangan') }}">
-                                <i class="fas fa-shopping-cart"></i> Perdagangan
-                            </a>
-                            <a class="dropdown-item" href="{{ route('public.halaman', 'profil-koperasi') }}">
-                                <i class="fas fa-handshake"></i> Profil Koperasi
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ route('public.halaman', 'nilai') }}">
-                                <i class="fas fa-star"></i> Nilai
-                            </a>
-                            <a class="dropdown-item" href="{{ route('public.halaman', 'komitmen') }}">
-                                <i class="fas fa-award"></i> Komitmen
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ route('public.halaman', 'struktur') }}">
-                                <i class="fas fa-sitemap"></i> Struktur Organisasi
-                            </a>
-                        </div>
-                    </li>
-
-
-                    {{-- Publikasi (Dropdown) --}}
-                    <li
-                        class="nav-item dropdown {{ request()->routeIs('public.berita*') || request()->routeIs('public.pengumuman*') || request()->routeIs('public.jadwal*') ? 'active' : '' }}">
-                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                            <i class="fas fa-newspaper mr-1"></i> Publikasi
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item {{ request()->routeIs('public.berita*') ? 'active' : '' }}"
-                                href="{{ route('public.berita') }}">
-                                <i class="fas fa-newspaper"></i> Berita Terkini
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('public.pengumuman*') ? 'active' : '' }}"
-                                href="{{ route('public.pengumuman') }}">
-                                <i class="fas fa-bullhorn"></i> Pengumuman
-                            </a>
-                            <a class="dropdown-item {{ request()->routeIs('public.jadwal*') ? 'active' : '' }}"
-                                href="{{ route('public.jadwal') }}">
-                                <i class="fas fa-calendar-alt"></i> Jadwal Kegiatan
-                            </a>
-                        </div>
-                    </li>
-
-                    {{-- Galeri --}}
-                    <li class="nav-item dropdown {{ request()->routeIs('public.galeri') ? 'active' : '' }}">
-                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                            <i class="fas fa-images mr-1"></i> Galeri
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ route('public.galeri') }}?tipe=foto">
-                                <i class="fas fa-camera mr-1"></i> Foto
-                            </a>
-                            <a class="dropdown-item" href="{{ route('public.galeri') }}?tipe=video">
-                                <i class="fas fa-video mr-1"></i> Video
-                            </a>
-                        </div>
-                    </li>
-
-                    {{-- Layanan (Dropdown) --}}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                            <i class="fas fa-concierge-bell mr-1"></i> Layanan
-                        </a>
-                        <div class="dropdown-menu">
-
-                            <a class="dropdown-item" href="{{ route('public.koperasi') }}">
-                                <i class="fas fa-store mr-1"></i> Daftar Koperasi
-                            </a>
-
-                            <a class="dropdown-item" href="{{ route('daftar-anggota') }}">
-                            <i class="fas fa-handshake"></i> Anggota Koperasi Baru
-                        </a>
-                        <a class="dropdown-item" href="{{ route('bantuan-modal') }}">
-                                <i class="fas fa-hand-holding-usd mr-1"></i> Bantuan Modal
-                            </a>
-
-                            <a class="dropdown-item" href="{{ route('pelatihan') }}">
-                                <i class="fas fa-chalkboard-teacher mr-1"></i> Pelatihan
-                            </a>
-
-                            <a class="dropdown-item" href="{{ route('layanan') }}">
-                                <i class="fas fa-headset mr-1"></i> Layanan
-                            </a>
-
-                            <div class="dropdown-divider"></div>
-
-                            <a class="dropdown-item" href="{{ route('statistik') }}">
-                                <i class="fas fa-chart-bar mr-1"></i> Data Statistik
-                            </a>
-
-                        </div>
-                    </li>
-
-
-
-                    {{-- Kontak --}}
-                    <li class="nav-item {{ request()->routeIs('public.kontak') ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ route('public.kontak') }}">
-                            <i class="fas fa-envelope mr-1"></i> Kontak
-                        </a>
-                    </li>
-
-                </ul>
-
-                {{-- Login / User Pojok Kanan --}}
-                <ul class="navbar-nav ml-auto">
-                    @auth
-                        <li class="nav-item dropdown user-dropdown">
-                            <a class="nav-link btn-user-nav dropdown-toggle" href="#" data-toggle="dropdown">
-                                <i class="fas fa-user-circle"></i>
-                                {{ Str::limit(auth()->user()->name, 16) }}
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <div class="user-info-header">
-                                    <span class="user-name">{{ auth()->user()->name }}</span>
-                                    <span class="user-role">
-                                        @php
-                                            $roleMap = ['admin' => 'Administrator', 'petugas' => 'Petugas', 'pimpinan' => 'Pimpinan', 'umkm' => 'Pelaku Koperasi'];
-                                            echo $roleMap[auth()->user()->role] ?? ucfirst(auth()->user()->role ?? 'User');
-                                        @endphp
-                                    </span>
-                                </div>
-                                {{-- Dashboard sesuai role --}}
-                                @php
-                                    $dashRoutes = [
-                                        'admin' => 'dashboard',
-                                        'petugas' => 'dashboard',
-                                        'pimpinan' => 'dashboard',
-                                        'umkm' => 'dashboard',
-                                    ];
-                                    $profileRoutes = [
-                                        'admin' => 'dashboard',
-                                        'petugas' => 'dashboard',
-                                        'pimpinan' => 'dashboard',
-                                        'umkm' => 'dashboard',
-                                    ];
-                                    $role = auth()->user()->role ?? 'umkm';
-                                    $dashRoute = $dashRoutes[$role] ?? 'admin.dashboard';
-                                    $profileRoute = $profileRoutes[$role] ?? 'dashboard';
-                                @endphp
-                                <a class="dropdown-item" href="{{ route($dashRoute) }}">
-                                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                                </a>
-                                <a class="dropdown-item" href="{{ route($profileRoute) }}">
-                                    <i class="fas fa-user-edit"></i> Profil Saya
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item text-danger"
-                                        style="background:none;border:none;width:100%;text-align:left;cursor:pointer">
-                                        <i class="fas fa-sign-out-alt"></i> Keluar
-                                    </button>
-                                </form>
-                            </div>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <a class="nav-link btn-user-nav" href="{{ route('login') }}">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </a>
-                        </li>
-                    @endauth
-                </ul>
-
-            </div>
-        </div>
-    </nav>
+    {{-- Include Navbar Partial --}}
+    @include('public.partials.navbar')
 
     @yield('content')
 
     {{-- ══ FOOTER ════════════════════════════════════ --}}
-    <footer style="background:#1a2540;color:#ccc;padding:60px 0 0">
+    <footer style="background:#1a2540;color:#ccc;padding:50px 0 0">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5 style="color:#fff;font-weight:700;margin-bottom:20px;font-size:15px">
-                        <i class="fas fa-store mr-2" style="color:var(--accent)"></i>DISPERINDAGKOP Tolikara
-                    </h5>
-                    <p style="font-size:13.5px;color:#aaa;line-height:1.8">
-                        Dinas Perindustrian, Perdagangan, Koperasi Kabupaten Tolikara hadir untuk mendorong
-                        pertumbuhan ekonomi lokal melalui pembinaan dan pengembangan Koperasi.
+            <div class="row" style="row-gap:40px;column-gap:20px">
+                {{-- KOLOM 1: Logo & Tagline --}}
+                <div class="col-lg-3 col-md-6 mb-4" style="padding-left:10px;padding-right:20px">
+                    {{-- Logo dan Nama --}}
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ app_logo() }}" alt="Logo {{ app_name() }}" style="height: 55px; margin-right: 12px;">
+                        <div>
+                            <h5 style="color:#fff;font-weight:700;margin-bottom:3px;font-size:15px;line-height:1.2">
+                                DISPERINDAGKOP Kab. Tolikara
+                            </h5>
+                            <p style="color:#aaa;font-size:11px;margin:0;line-height:1.3">Sistem Informasi Manajemen Koperasi</p>
+                        </div>
+                    </div>
+                    
+                    {{-- Tagline Menarik --}}
+                    <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;border-left:3px solid #f5a623;margin-bottom:15px">
+                        <p style="font-size:13px;color:#fff;line-height:1.6;margin:0;font-style:italic">
+                            <i class="fas fa-quote-left mr-1" style="color:#f5a623;font-size:10px"></i>
+                            Membangun Ekonomi Kerakyatan Melalui Koperasi yang Kuat dan Mandiri
+                            <i class="fas fa-quote-right ml-1" style="color:#f5a623;font-size:10px"></i>
+                        </p>
+                    </div>
+                    
+                    <p style="font-size:12.5px;color:#aaa;line-height:1.7;margin-bottom:15px">
+                        Bersama memajukan koperasi di Kabupaten Tolikara untuk kesejahteraan masyarakat Papua Pegunungan.
                     </p>
-                    <div class="mt-3">
-                        <a href="#"
-                            style="display:inline-flex;width:35px;height:35px;background:rgba(255,255,255,.1);border-radius:50%;align-items:center;justify-content:center;color:#ccc;margin-right:8px;text-decoration:none;transition:all .3s"
-                            onmouseover="this.style.background='var(--accent)';this.style.color='#333'"
-                            onmouseout="this.style.background='rgba(255,255,255,.1)';this.style.color='#ccc'">
-                            <i class="fab fa-facebook-f" style="font-size:13px"></i></a>
-                        <a href="#"
-                            style="display:inline-flex;width:35px;height:35px;background:rgba(255,255,255,.1);border-radius:50%;align-items:center;justify-content:center;color:#ccc;margin-right:8px;text-decoration:none;transition:all .3s"
-                            onmouseover="this.style.background='var(--accent)';this.style.color='#333'"
-                            onmouseout="this.style.background='rgba(255,255,255,.1)';this.style.color='#ccc'">
-                            <i class="fab fa-instagram" style="font-size:13px"></i></a>
-                        <a href="#"
-                            style="display:inline-flex;width:35px;height:35px;background:rgba(255,255,255,.1);border-radius:50%;align-items:center;justify-content:center;color:#ccc;margin-right:8px;text-decoration:none;transition:all .3s"
-                            onmouseover="this.style.background='var(--accent)';this.style.color='#333'"
-                            onmouseout="this.style.background='rgba(255,255,255,.1)';this.style.color='#ccc'">
-                            <i class="fab fa-youtube" style="font-size:13px"></i></a>
-                    <a href="https://wa.me/6208517758927" target="_blank" style="display:inline-flex;width:35px;height:35px;background:rgba(255,255,255,.1);border-radius:50%;align-items:center;justify-content:center;color:#ccc;margin-right:8px;text-decoration:none;transition:all .3s"
-                       onmouseover="this.style.background='#25d366';this.style.color='#fff'"
-                       onmouseout="this.style.background='rgba(255,255,255,.1)';this.style.color='#ccc'">
-                        <i class="fab fa-whatsapp" style="font-size:15px"></i></a>
+                    
+                    {{-- Social Media --}}
+                    <div>
+                        <p style="color:#fff;font-size:12px;font-weight:600;margin-bottom:10px">
+                            <i class="fas fa-share-alt mr-1" style="color:#f5a623;font-size:11px"></i>Ikuti Kami
+                        </p>
+                        <a href="#" style="display:inline-flex;width:38px;height:38px;background:rgba(255,255,255,.08);border-radius:50%;align-items:center;justify-content:center;color:#ccc;margin-right:8px;text-decoration:none;transition:all .3s;border:1px solid rgba(255,255,255,0.1)" onmouseover="this.style.background='#1877f2';this.style.color='#fff';this.style.transform='translateY(-2px)';this.style.borderColor='#1877f2'" onmouseout="this.style.background='rgba(255,255,255,.08)';this.style.color='#ccc';this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,0.1)'">
+                            <i class="fab fa-facebook-f" style="font-size:15px"></i>
+                        </a>
+                        <a href="#" style="display:inline-flex;width:38px;height:38px;background:rgba(255,255,255,.08);border-radius:50%;align-items:center;justify-content:center;color:#ccc;margin-right:8px;text-decoration:none;transition:all .3s;border:1px solid rgba(255,255,255,0.1)" onmouseover="this.style.background='#e4405f';this.style.color='#fff';this.style.transform='translateY(-2px)';this.style.borderColor='#e4405f'" onmouseout="this.style.background='rgba(255,255,255,.08)';this.style.color='#ccc';this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,0.1)'">
+                            <i class="fab fa-instagram" style="font-size:15px"></i>
+                        </a>
+                        <a href="#" style="display:inline-flex;width:38px;height:38px;background:rgba(255,255,255,.08);border-radius:50%;align-items:center;justify-content:center;color:#ccc;margin-right:8px;text-decoration:none;transition:all .3s;border:1px solid rgba(255,255,255,0.1)" onmouseover="this.style.background='#ff0000';this.style.color='#fff';this.style.transform='translateY(-2px)';this.style.borderColor='#ff0000'" onmouseout="this.style.background='rgba(255,255,255,.08)';this.style.color='#ccc';this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,0.1)'">
+                            <i class="fab fa-youtube" style="font-size:15px"></i>
+                        </a>
+                        <a href="https://wa.me/6208517758927" target="_blank" style="display:inline-flex;width:38px;height:38px;background:rgba(255,255,255,.08);border-radius:50%;align-items:center;justify-content:center;color:#ccc;text-decoration:none;transition:all .3s;border:1px solid rgba(255,255,255,0.1)" onmouseover="this.style.background='#25d366';this.style.color='#fff';this.style.transform='translateY(-2px)';this.style.borderColor='#25d366'" onmouseout="this.style.background='rgba(255,255,255,.08)';this.style.color='#ccc';this.style.transform='translateY(0)';this.style.borderColor='rgba(255,255,255,0.1)'">
+                            <i class="fab fa-whatsapp" style="font-size:17px"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h5 style="color:#fff;font-weight:700;margin-bottom:18px;font-size:14px">Menu</h5>
-                    <ul class="list-unstyled" style="font-size:13.5px">
-                        <li class="mb-2"><a href="{{ route('public.home') }}" style="color:#aaa;text-decoration:none"><i
-                                    class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Beranda</a></li>
-                        <li class="mb-2"><a href="{{ route('public.tentang') }}"
-                                style="color:#aaa;text-decoration:none"><i class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Profil Dinas</a></li>
-                        <li class="mb-2"><a href="{{ route('public.koperasi') }}" style="color:#aaa;text-decoration:none"><i
-                                    class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Direktori Koperasi</a></li>
-                        <li class="mb-2"><a href="{{ route('public.berita') }}"
-                                style="color:#aaa;text-decoration:none"><i class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Berita</a></li>
-                        <li class="mb-2"><a href="{{ route('public.pengumuman') }}"
-                                style="color:#aaa;text-decoration:none"><i class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Pengumuman</a></li>
-                        <li class="mb-2"><a href="{{ route('public.galeri') }}"
-                                style="color:#aaa;text-decoration:none"><i class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Galeri</a></li>
+                
+                {{-- KOLOM 2: Menu --}}
+                <div class="col-lg-2 col-md-6 mb-4" style="padding-left:20px;padding-right:20px">
+                    <h5 style="color:#fff;font-weight:700;margin-bottom:18px;font-size:14px;padding-bottom:12px;border-bottom:2px solid rgba(245,166,35,0.3)">
+                        <i class="fas fa-bars mr-2" style="color:#f5a623;font-size:13px"></i>Menu
+                    </h5>
+                    <ul class="list-unstyled" style="font-size:13px;line-height:2.4">
+                        <li><a href="{{ route('public.home') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Beranda</a></li>
+                        <li><a href="{{ route('public.tentang') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Profil Dinas</a></li>
+                        <li><a href="{{ route('public.koperasi') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Direktori Koperasi</a></li>
+                        <li><a href="{{ route('public.berita') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Berita</a></li>
+                        <li><a href="{{ route('public.pengumuman') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Pengumuman</a></li>
+                        <li><a href="{{ route('public.galeri-foto') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Galeri Foto</a></li>
+                        <li><a href="{{ route('public.galeri-video') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Galeri Video</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-3 col-md-4 mb-4">
-                    <h5 style="color:#fff;font-weight:700;margin-bottom:18px;font-size:14px">Layanan</h5>
-                    <ul class="list-unstyled" style="font-size:13.5px">
-                        <li class="mb-2"><a href="{{ route('login') }}" style="color:#aaa;text-decoration:none"><i
-                                    class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Pendaftaran Koperasi</a></li>
-                        <li class="mb-2"><a href="#" style="color:#aaa;text-decoration:none"><i
-                                    class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Bantuan Usaha</a></li>
-                        <li class="mb-2"><a href="#" style="color:#aaa;text-decoration:none"><i
-                                    class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Pelatihan & Pembinaan</a></li>
-                        <li class="mb-2"><a href="#" style="color:#aaa;text-decoration:none"><i
-                                    class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Sertifikasi Produk</a></li>
-                        <li class="mb-2"><a href="{{ route('login') }}" style="color:#aaa;text-decoration:none"><i
-                                    class="fas fa-chevron-right mr-1"
-                                    style="font-size:9px;color:var(--accent)"></i>Portal Koperasi</a></li>
+                
+                {{-- KOLOM 3: Layanan --}}
+                <div class="col-lg-2 col-md-6 mb-4" style="padding-left:20px;padding-right:20px">
+                    <h5 style="color:#fff;font-weight:700;margin-bottom:18px;font-size:14px;padding-bottom:12px;border-bottom:2px solid rgba(245,166,35,0.3)">
+                        <i class="fas fa-hands-helping mr-2" style="color:#f5a623;font-size:13px"></i>Layanan
+                    </h5>
+                    <ul class="list-unstyled" style="font-size:13px;line-height:2.4">
+                        <li><a href="{{ route('login') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Pendaftaran Koperasi</a></li>
+                        <li><a href="#" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Bantuan Usaha</a></li>
+                        <li><a href="#" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Pelatihan & Pembinaan</a></li>
+                        <li><a href="#" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Sertifikasi Produk</a></li>
+                        <li><a href="{{ route('login') }}" style="color:#aaa;text-decoration:none;transition:all 0.2s;display:block" onmouseover="this.style.color='#f5a623';this.style.paddingLeft='5px'" onmouseout="this.style.color='#aaa';this.style.paddingLeft='0'"><i class="fas fa-chevron-right mr-2" style="font-size:8px;color:#f5a623"></i>Portal Koperasi</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-3 col-md-4 mb-4">
-                    <h5 style="color:#fff;font-weight:700;margin-bottom:18px;font-size:14px">Kontak</h5>
-                    <p style="font-size:13.5px;color:#aaa;line-height:1.8;margin-bottom:10px">
-                        <i class="fas fa-map-marker-alt mr-2" style="color:var(--accent)"></i>Jl. Raya Karubaga, Kab.
-                        Tolikara, Papua Pegunungan
-                    </p>
-                    <p style="font-size:13.5px;color:#aaa;margin-bottom:6px">
-                        <i class="fas fa-phone mr-2" style="color:var(--accent)"></i>(0964) 123456
-                    </p>
-                    <p style="font-size:13.5px;color:#aaa;margin-bottom:6px">
-                        <i class="fas fa-envelope mr-2"
-                            style="color:var(--accent)"></i>info@disperindagkop.tolikara.go.id
-                    </p>
-                    <p style="font-size:13.5px;color:#aaa">
-                        <i class="fas fa-clock mr-2" style="color:var(--accent)"></i>Senin–Jumat: 08.00–16.00 WIT
-                    </p>
+                
+                {{-- KOLOM 4: Kontak & Peta --}}
+                <div class="col-lg-4 col-md-6 mb-4" style="padding-left:20px;padding-right:10px">
+                    <h5 style="color:#fff;font-weight:700;margin-bottom:18px;font-size:14px;padding-bottom:12px;border-bottom:2px solid rgba(245,166,35,0.3)">
+                        <i class="fas fa-phone-alt mr-2" style="color:#f5a623;font-size:13px"></i>Kontak
+                    </h5>
+                    <div style="font-size:12.5px;line-height:2.2">
+                        <p style="color:#aaa;margin-bottom:10px">
+                            <i class="fas fa-map-marker-alt mr-2" style="color:#f5a623;width:16px"></i>{{ setting('contact_address', 'Jl. Raya Karubaga, Kab. Tolikara, Papua Pegunungan') }}
+                        </p>
+                        <p style="color:#aaa;margin-bottom:10px">
+                            <i class="fas fa-phone mr-2" style="color:#f5a623;width:16px"></i>{{ setting('contact_phone', '(0964) 123456') }}
+                        </p>
+                        <p style="color:#aaa;margin-bottom:10px">
+                            <i class="fas fa-envelope mr-2" style="color:#f5a623;width:16px"></i>{{ setting('contact_email', 'info@disperindagkop.tolikara.go.id') }}
+                        </p>
+                        @if(setting('contact_whatsapp'))
+                        <p style="color:#aaa;margin-bottom:10px">
+                            <i class="fab fa-whatsapp mr-2" style="color:#f5a623;width:16px"></i>{{ setting('contact_whatsapp') }}
+                        </p>
+                        @endif
+                        <p style="color:#aaa;margin-bottom:18px">
+                            <i class="fas fa-clock mr-2" style="color:#f5a623;width:16px"></i>Senin–Jumat: 08.00–16.00 WIT
+                        </p>
+                    </div>
+                    
+                    {{-- Peta Lokasi --}}
+                    <div style="margin-top:12px;border-radius:8px;overflow:hidden;border:2px solid rgba(245,166,35,0.3);box-shadow:0 3px 8px rgba(0,0,0,0.2)">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3981.554083659543!2d138.4659558740056!3d-3.6883950962855807!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x681619cb1b065353%3A0xc420843f02fc5eef!2sTolikara%2C%20Papua%2C%20Indonesia!5e0!3m2!1sid!2sid!4v1776651088324!5m2!1sid!2sid" 
+                            width="100%" 
+                            height="220" 
+                            style="border:0;display:block" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                    
+                    {{-- Layanan Pengaduan --}}
+                    <div style="background:rgba(245,166,35,0.1);padding:10px 12px;border-radius:6px;border:1px solid rgba(245,166,35,0.2);margin-top:12px">
+                        <p style="color:#f5a623;font-size:11.5px;font-weight:600;margin:0">
+                            <i class="fas fa-info-circle mr-1"></i>Layanan Pengaduan
+                        </p>
+                        <p style="color:#aaa;font-size:10.5px;margin:3px 0 0 0;line-height:1.4">
+                            Kami siap melayani Anda dengan sepenuh hati
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div style="background:#111827;margin-top:40px;padding:16px 0;font-size:12.5px;text-align:center;color:#555">
+        
+        {{-- Footer Bottom --}}
+        <div style="background:#111827;margin-top:35px;padding:18px 0;font-size:12.5px;text-align:center;color:#666">
             <div class="container">
-                © {{ date('Y') }} Dinas Perindustrian, Perdagangan, Koperasi Kabupaten Tolikara. All rights
-                reserved.
+                <p style="margin:0;line-height:1.6">
+                    {!! setting('app_footer', '© ' . date('Y') . ' <strong style="color:#f5a623">DISPERINDAGKOP Kabupaten Tolikara</strong>. Semua Hak Dilindungi.') !!}
+                </p>
+                <p style="margin:4px 0 0 0;font-size:11.5px;color:#555">
+                    <i class="fas fa-heart" style="color:#f5a623;font-size:10px"></i> Dibuat dengan dedikasi untuk kemajuan koperasi Papua Pegunungan
+                </p>
             </div>
         </div>
     </footer>

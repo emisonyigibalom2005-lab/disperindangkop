@@ -40,8 +40,6 @@ class BeritaController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
-            'kategori' => 'required|string|max:100',
-            'status' => 'required|in:draft,published,archived',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -54,15 +52,15 @@ class BeritaController extends Controller
             'judul' => $request->judul,
             'slug' => Berita::generateSlug($request->judul),
             'konten' => $request->konten,
-            'kategori' => $request->kategori,
-            'status' => $request->status,
+            'kategori' => 'umum', // Default kategori
+            'status' => 'publish', // Default publish (bukan published)
             'thumbnail' => $thumbnailPath,
             'created_by' => auth()->id(),
-            'published_at' => $request->status === 'published' ? now() : null,
+            'published_at' => now(),
         ]);
 
-        return redirect()->route('admin.berita.show', $berita)
-            ->with('success', 'Berita berhasil disimpan.');
+        return redirect()->route('admin.berita.index')
+            ->with('success', 'Berita berhasil disimpan dan dipublikasikan.');
     }
 
     public function show($id) { $berita = Berita::findOrFail($id); return view('admin.berita.show', compact('berita')); } public function show_unused(Berita $berita)
@@ -80,8 +78,8 @@ class BeritaController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
-            'kategori' => 'required|string|max:100',
-            'status' => 'required|in:draft,published,archived',
+            'kategori' => 'nullable|string|max:50',
+            'status' => 'nullable|in:draft,publish',
             'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
@@ -95,16 +93,14 @@ class BeritaController extends Controller
 
         $berita->update([
             'judul' => $request->judul,
+            'slug' => Berita::generateSlug($request->judul),
             'konten' => $request->konten,
-            'kategori' => $request->kategori,
-            'status' => $request->status,
+            'kategori' => $request->kategori ?? $berita->kategori,
+            'status' => $request->status ?? $berita->status,
             'thumbnail' => $thumbnailPath,
-            'published_at' => $request->status === 'published' && !$berita->published_at
-                ? now()
-                : $berita->published_at,
         ]);
 
-        return redirect()->route('admin.berita.show', $berita)
+        return redirect()->route('admin.berita.index')
             ->with('success', 'Berita berhasil diperbarui.');
     }
 

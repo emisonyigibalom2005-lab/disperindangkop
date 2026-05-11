@@ -9,7 +9,7 @@ class Setting extends Model
 {
     protected $fillable = ['key', 'value'];
 
-    public static function get(string $key, string $default = ''): string
+    public static function get(string $key, ?string $default = null): ?string
     {
         return Cache::remember('setting_' . $key, 3600, function () use ($key, $default) {
             return static::where('key', $key)->value('value') ?? $default;

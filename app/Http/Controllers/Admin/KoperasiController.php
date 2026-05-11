@@ -55,11 +55,30 @@ class KoperasiController extends Controller
 
     public function create()
     {
-        return view('admin.koperasi.create', ['distrik' => Koperasi::listDistrik()]);
+        // Admin bisa mendaftarkan koperasi kapan saja, tidak tergantung periode
+        $periodeAktif = \App\Models\PeriodePendaftaranKoperasi::where('status', 'aktif')->first();
+        
+        // Jika tidak ada periode aktif, gunakan periode terakhir atau null
+        if (!$periodeAktif) {
+            $periodeAktif = \App\Models\PeriodePendaftaranKoperasi::latest()->first();
+        }
+        
+        return view('admin.koperasi.create', [
+            'distrik' => Koperasi::listDistrik(),
+            'periodeAktif' => $periodeAktif
+        ]);
     }
 
     public function store(Request $request)
     {
+        // Admin bisa mendaftarkan koperasi kapan saja, tidak tergantung periode
+        $periodeAktif = \App\Models\PeriodePendaftaranKoperasi::where('status', 'aktif')->first();
+        
+        if (!$periodeAktif) {
+            // Jika tidak ada periode aktif, gunakan periode terakhir
+            $periodeAktif = \App\Models\PeriodePendaftaranKoperasi::latest()->first();
+        }
+        
         $validated = $request->validate([
             'no_ktp' => 'required|string|max:20|unique:koperasi,no_ktp',
             'nama_pemilik' => 'required|string|max:255',
@@ -70,32 +89,89 @@ class KoperasiController extends Controller
             'distrik' => 'required|string|max:100',
             'kelurahan' => 'required|string|max:100',
             'no_telp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:users,email',
             'modal_usaha' => 'nullable|numeric|min:0',
             'omset_per_bulan' => 'nullable|numeric|min:0',
             'jumlah_karyawan' => 'nullable|integer|min:0',
+            'status_verifikasi' => 'nullable|in:pending,diverifikasi,ditolak',
+            'status_usaha' => 'nullable|in:aktif,tidak aktif',
+        ], [
+            'no_ktp.required' => 'No. KTP wajib diisi',
+            'no_ktp.unique' => 'No. KTP sudah terdaftar',
+            'nama_pemilik.required' => 'Nama pemilik wajib diisi',
+            'nama_usaha.required' => 'Nama usaha wajib diisi',
+            'jenis_usaha.required' => 'Jenis usaha wajib diisi',
+            'kategori.required' => 'Kategori wajib dipilih',
+            'alamat.required' => 'Alamat wajib diisi',
+            'distrik.required' => 'Distrik wajib dipilih',
+            'kelurahan.required' => 'Kelurahan/Desa wajib diisi',
+            'email.email' => 'Format email tidak valid',
+            'email.unique' => 'Email sudah terdaftar',
         ]);
 
-        $validated['no_registrasi'] = Koperasi::generateNoRegistrasi();
-        $validated['status_verifikasi'] = 'pending';
-        $validated['status_usaha'] = 'aktif';
+        try {
+            \DB::beginTransaction();
+            
+            $validated['no_registrasi'] = Koperasi::generateNoRegistrasi();
+            $validated['status_verifikasi'] = $request->input('status_verifikasi', 'diverifikasi'); // Default diverifikasi untuk admin
+            $validated['status_usaha'] = $request->input('status_usaha', 'aktif'); // Default aktif
+            $validated['periode_pendaftaran_koperasi_id'] = $periodeAktif ? $periodeAktif->id : null;
+            $validated['verified_by'] = auth()->id(); // Admin yang mendaftarkan
+            $validated['verified_at'] = now();
 
-        if ($request->hasFile('foto_usaha')) {
-            $validated['foto_usaha'] = $request->file('foto_usaha')->store('koperasi', 'public');
+            if ($request->hasFile('foto_usaha')) {
+                $validated['foto_usaha'] = $request->file('foto_usaha')->store('koperasi', 'public');
+            }
+            
+            // Create User Account jika email diisi
+            $userId = null;
+            if ($request->filled('email')) {
+                $user = \App\Models\User::create([
+                    'name' => $validated['nama_pemilik'],
+                    'email' => $validated['email'],
+                    'password' => \Hash::make('password123'), // Default password
+                    'role' => 'koperasi',
+                ]);
+                $userId = $user->id;
+                $validated['user_id'] = $userId;
+            }
+
+            $koperasi = Koperasi::create($validated);
+
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'create',
+                'module' => 'Koperasi',
+                'description' => 'Mendaftarkan Koperasi baru: ' . $koperasi->nama_usaha . ' (' . $koperasi->no_registrasi . ')',
+                'ip_address' => $request->ip(),
+            ]);
+            
+            // Kirim notifikasi ke koperasi jika ada user_id
+            if ($userId) {
+                Notifikasi::create([
+                    'user_id' => $userId,
+                    'judul' => '🎉 Selamat! Koperasi Anda Terdaftar',
+                    'pesan' => 'Selamat! Koperasi ' . $koperasi->nama_usaha . ' telah terdaftar dengan nomor registrasi: ' . $koperasi->no_registrasi . '. Email: ' . $validated['email'] . ', Password default: password123. Silakan login dan ubah password Anda.',
+                    'tipe' => 'success',
+                    'link' => route('login'),
+                    'is_read' => false,
+                ]);
+            }
+            
+            \DB::commit();
+
+            return redirect()->route('admin.koperasi.show', $koperasi)
+                ->with('success', 'Data Koperasi berhasil ditambahkan dengan nomor registrasi ' . $koperasi->no_registrasi . ($userId ? '. Akun login telah dibuat dengan password default: password123' : ''));
+                
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            
+            \Log::error('Error mendaftarkan koperasi dari admin: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        $koperasi = Koperasi::create($validated);
-
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'create',
-            'module' => 'Koperasi',
-            'description' => 'Mendaftarkan Koperasi baru: ' . $koperasi->nama_usaha . ' (' . $koperasi->no_registrasi . ')',
-            'ip_address' => $request->ip(),
-        ]);
-
-        return redirect()->route('admin.koperasi.show', $koperasi)
-            ->with('success', 'Data Koperasi berhasil ditambahkan dengan nomor registrasi ' . $koperasi->no_registrasi);
     }
 
     public function show(Koperasi $koperasi)
@@ -146,7 +222,7 @@ class KoperasiController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        return redirect()->route('admin.koperasi.show', $koperasi)
+        return redirect()->route('admin.koperasi.index')
             ->with('success', 'Data Koperasi berhasil diperbarui.');
     }
 
@@ -226,7 +302,7 @@ class KoperasiController extends Controller
 
     public function toggleStatus(Koperasi $koperasi)
     {
-        $newStatus = $koperasi->status_usaha === 'aktif' ? 'tidak_aktif' : 'aktif';
+        $newStatus = $koperasi->status_usaha === 'aktif' ? 'tidak aktif' : 'aktif';
         $koperasi->update(['status_usaha' => $newStatus]);
 
         ActivityLog::create([
@@ -286,4 +362,39 @@ class KoperasiController extends Controller
 
         return back()->with('success', 'Dokumen berhasil dihapus.');
     }
+    
+    public function downloadDokumen(Koperasi $koperasi) {
+        $html = view('admin.koperasi.dokumen-word', compact('koperasi'))->render();
+        
+        $filename = 'Dokumen_Koperasi_' . str_replace(' ', '_', $koperasi->nama_usaha) . '_' . $koperasi->no_registrasi . '.doc';
+        
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-word')
+            ->header('Content-Disposition', 'attachment;filename="' . $filename . '"')
+            ->header('Cache-Control', 'max-age=0');
+    }
+    
+    public function printDokumen(Koperasi $koperasi) {
+        // Return HTML view for printing (not download)
+        return view('admin.koperasi.dokumen-word', compact('koperasi'));
+    }
+    
+    public function downloadKartu(Koperasi $koperasi) {
+        $type = 'kartu';
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.koperasi.kartu-sertifikat', compact('koperasi', 'type'));
+        $pdf->setPaper([0, 0, 242.65, 153], 'landscape');
+        
+        $filename = 'Kartu_Koperasi_' . str_replace(' ', '_', $koperasi->nama_usaha) . '.pdf';
+        return $pdf->download($filename);
+    }
+    
+    public function downloadSertifikat(Koperasi $koperasi) {
+        $type = 'sertifikat';
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.koperasi.kartu-sertifikat', compact('koperasi', 'type'));
+        $pdf->setPaper('a4', 'portrait'); // A4 Portrait untuk sertifikat 1 halaman
+        
+        $filename = 'Sertifikat_Koperasi_' . str_replace(' ', '_', $koperasi->nama_usaha) . '.pdf';
+        return $pdf->download($filename);
+    }
+
 }

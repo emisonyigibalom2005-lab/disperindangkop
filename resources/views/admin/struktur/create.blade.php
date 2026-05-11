@@ -1,13 +1,13 @@
 @extends('layouts.app')
-@section('title','Tambah Pegawai')
-@section('page-title','Tambah Pegawai')
+@section('title','Tambah Srukttur Organisasi')
+@section('page-title','Tambah Srukttur Organisasi')
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('admin.struktur.index') }}">Struktur Organisasi</a></li>
     <li class="breadcrumb-item active">Tambah</li>
 @endsection
 @section('content')
 <div class="card card-primary card-outline">
-    <div class="card-header"><h3 class="card-title"><i class="fas fa-plus mr-2"></i>Tambah Pegawai</h3></div>
+    <div class="card-header"><h3 class="card-title"><i class="fas fa-plus mr-2"></i>Tambah Srukttur Organisasi</h3></div>
     <form method="POST" action="{{ route('admin.struktur.store') }}" enctype="multipart/form-data">
         @csrf
         <div class="card-body">

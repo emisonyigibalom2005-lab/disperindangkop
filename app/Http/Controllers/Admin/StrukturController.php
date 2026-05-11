@@ -43,6 +43,36 @@ class StrukturController extends Controller {
         return view('admin.struktur.edit', compact('anggota'));
     }
 
+    public function show($id) {
+        $anggota = DB::table('struktur_organisasi')->where('id',$id)->first();
+        if (!$anggota) {
+            return response()->json(['error' => 'Data tidak ditemukan'], 404);
+        }
+        
+        $bidangLabels = [
+            'kepala_dinas' => 'Kepala Dinas',
+            'sekretariat' => 'Sekretariat',
+            'perindustrian' => 'Bidang Perindustrian',
+            'perdagangan' => 'Bidang Perdagangan',
+            'koperasi' => 'Bidang Koperasi',
+            'uptd' => 'UPTD',
+        ];
+        
+        return response()->json([
+            'id' => $anggota->id,
+            'nama' => $anggota->nama,
+            'jabatan' => $anggota->jabatan,
+            'sub_jabatan' => $anggota->sub_jabatan,
+            'nip' => $anggota->nip,
+            'bidang' => $anggota->bidang,
+            'bidang_label' => $bidangLabels[$anggota->bidang] ?? $anggota->bidang,
+            'urutan' => $anggota->urutan,
+            'is_active' => $anggota->is_active,
+            'foto_url' => $anggota->foto ? asset('storage/'.$anggota->foto) : asset('images/default-avatar.png'),
+            'deskripsi' => $anggota->deskripsi,
+        ]);
+    }
+
     public function update(Request $request, $id) {
         $request->validate([
             'nama'    => 'required|string|max:100',

@@ -265,186 +265,283 @@ body {
     margin: 0;
 }
 
-/* ── Koperasi CARD ─────────────────────────────────── */
-.card-koperasi {
-    border: none;
-    border-radius: 18px;
-    box-shadow: 0 2px 18px rgba(0,0,0,.07);
-    transition: all .32s cubic-bezier(.22,.61,.36,1);
-    overflow: hidden;
-    height: 100%;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-}
-.card-koperasi:hover {
-    transform: translateY(-7px);
-    box-shadow: 0 20px 50px rgba(26,58,110,.13);
-}
-.card-koperasi .card-thumb {
-    height: 180px;
-    background: linear-gradient(135deg, var(--primary) 0%, #2a5aad 100%);
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-    position: relative;
-}
-.card-koperasi .card-thumb::after {
-    content: '';
-    position: absolute;
-    bottom: -1px; left: 0; right: 0;
-    height: 28px;
-    background: #fff;
-    clip-path: ellipse(55% 100% at 50% 100%);
-}
-.card-koperasi .card-thumb i { font-size: 3.5rem; color: rgba(255,255,255,.2); }
-.card-koperasi .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.card-koperasi .card-body { padding: 20px 24px 26px; display: flex; flex-direction: column; flex: 1; }
-
-.badge-kat {
-    display: inline-block;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 100px;
-    margin-bottom: 10px;
-    align-self: flex-start;
-}
-.badge-kat.mikro    { background: #eff6ff; color: #1d4ed8; }
-.badge-kat.kecil    { background: #f0fdf4; color: #15803d; }
-.badge-kat.menengah { background: #fffbeb; color: #a16207; }
-
-.card-koperasi h5 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.07rem;        /* ← lebih besar */
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 7px;
-    line-height: 1.4;
-}
-.card-koperasi .koperasi-distrik {
-    font-size: 12.5px;         /* ← lebih besar */
-    color: #7a8394;
-    margin-bottom: 7px;
-}
-.card-koperasi .koperasi-jenis {
-    font-size: 13.5px;         /* ← lebih besar */
-    color: #4a5568;            /* ← lebih gelap */
-    flex: 1;
-    margin-bottom: 18px;
-    line-height: 1.6;
-}
-.btn-detail {
-    display: block;
-    width: 100%;
-    padding: 11px;
-    border-radius: 9px;
-    border: 1.5px solid var(--primary);
-    color: var(--primary) !important;
-    font-size: 13.5px;         /* ← lebih besar */
-    font-weight: 700;
-    background: transparent;
-    transition: all .22s;
-    text-align: center;
-    text-decoration: none;
-    letter-spacing: .2px;
-}
-.btn-detail:hover {
-    background: var(--primary);
-    color: #fff !important;
-    box-shadow: 0 4px 16px rgba(26,58,110,.25);
-}
-
 /* ── BERITA CARD ───────────────────────────────── */
 .card-news {
     border: none;
     border-radius: 18px;
-    box-shadow: 0 2px 18px rgba(0,0,0,.07);
-    transition: all .32s cubic-bezier(.22,.61,.36,1);
+    box-shadow: 0 6px 25px rgba(0,0,0,.1);
+    transition: all .35s cubic-bezier(.22,.61,.36,1);
     overflow: hidden;
     height: 100%;
     background: #fff;
     display: flex;
     flex-direction: column;
+    position: relative;
+    cursor: pointer;
 }
-.card-news:hover { transform: translateY(-7px); box-shadow: 0 20px 50px rgba(26,58,110,.13); }
+.card-news:hover { 
+    transform: translateY(-10px); 
+    box-shadow: 0 25px 50px rgba(26,58,110,.18); 
+}
 .card-news .news-thumb {
-    height: 210px;
+    height: 420px;
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
 }
-.card-news .news-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s; }
-.card-news:hover .news-thumb img { transform: scale(1.06); }
+.card-news .news-thumb img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover;
+    object-position: center;
+    transition: transform .5s ease-out;
+    display: block;
+}
+.card-news:hover .news-thumb img { 
+    transform: scale(1.12); 
+}
 .card-news .news-thumb .thumb-placeholder {
     height: 100%;
-    background: linear-gradient(135deg, var(--primary), #2a5aad);
-    display: flex; align-items: center; justify-content: center;
+    width: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
 }
+.card-news .news-thumb .thumb-placeholder i {
+    font-size: 72px;
+    color: rgba(255,255,255,.35);
+}
+
 .card-news .news-body {
-    padding: 22px 24px 26px;
+    padding: 28px;
     display: flex;
     flex-direction: column;
     flex: 1;
+    background: white;
 }
-.card-news .news-meta {
-    font-size: 12px;           /* ← lebih besar */
-    color: #7a8a9a;
-    margin-bottom: 10px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.card-news .news-meta .dot { width: 3px; height: 3px; background: #ccd2de; border-radius: 50%; }
 .card-news h5 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.06rem;        /* ← lebih besar */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px;
     font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 9px;
-    line-height: 1.5;
+    color: #1a3a6e;
+    margin-bottom: 14px;
+    line-height: 1.4;
+    transition: color .3s;
+}
+.card-news:hover h5 {
+    color: #2d5aa0;
 }
 .card-news p {
-    font-size: 13.5px;         /* ← lebih besar */
-    color: #4a5568;            /* ← lebih gelap */
+    font-size: 15px;
+    color: #64748b;
     line-height: 1.75;
     flex: 1;
     margin-bottom: 18px;
 }
 .btn-baca {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--primary);
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a3a6e;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    letter-spacing: .2px;
-    transition: gap .2s, color .2s;
+    transition: all .3s;
 }
-.btn-baca i { font-size: 10px; }
-.btn-baca:hover { color: var(--accent); gap: 12px; text-decoration: none; }
+.btn-baca:hover { 
+    color: #f5a623; 
+    transform: translateX(5px);
+}
+.btn-baca i { 
+    font-size: 13px; 
+    transition: transform .3s;
+}
+.btn-baca:hover i {
+    transform: translateX(4px);
+}
+
+/* Responsive untuk berita */
+@media(max-width:992px){
+    .card-news .news-thumb { height: 360px; }
+    .card-news h5 { font-size: 19px; }
+}
+@media(max-width:768px){
+    .card-news .news-thumb { height: 300px; }
+    .card-news h5 { font-size: 17px; }
+    .card-news p { font-size: 14px; }
+    .card-news .news-body { padding: 22px; }
+}
 
 /* ── GALERI ────────────────────────────────────── */
-.galeri-item { border-radius: 14px; overflow: hidden; position: relative; height: 215px; cursor: pointer; }
-.galeri-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s; }
-.galeri-item:hover img { transform: scale(1.08); }
-.galeri-item .overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(26,58,110,.88) 0%, rgba(26,58,110,.1) 55%, transparent 100%);
-    opacity: 0;
-    transition: opacity .35s;
-    display: flex;
-    align-items: flex-end;
-    padding: 18px;
-    color: #fff;
-    font-size: 13.5px;         /* ← lebih besar */
-    font-weight: 600;
-    line-height: 1.45;
+.galeri-card-item {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.14);
+    transition: all 0.4s ease;
 }
-.galeri-item:hover .overlay { opacity: 1; }
+
+.galeri-card-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 55px rgba(0,0,0,0.25);
+}
+
+.galeri-card-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.6s ease;
+}
+
+.galeri-card-item:hover img {
+    transform: scale(1.12);
+}
+
+.galeri-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0.5), transparent);
+    padding: 35px 30px;
+    transform: translateY(0);
+    transition: all 0.4s ease;
+}
+
+.galeri-card-content h4 {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    line-height: 1.4;
+    text-shadow: 0 3px 15px rgba(0,0,0,0.6);
+}
+
+/* Carousel Controls untuk Galeri */
+#galeriCarousel .carousel-control-prev,
+#galeriCarousel .carousel-control-next {
+    width: 55px;
+    height: 55px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+#galeriCarousel:hover .carousel-control-prev,
+#galeriCarousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+#galeriCarousel .carousel-control-prev {
+    left: -25px;
+}
+
+#galeriCarousel .carousel-control-next {
+    right: -25px;
+}
+
+#galeriCarousel .carousel-control-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#galeriCarousel .carousel-control-icon i {
+    font-size: 22px;
+    color: var(--primary);
+}
+
+#galeriCarousel .carousel-control-prev:hover,
+#galeriCarousel .carousel-control-next:hover {
+    background: var(--primary);
+}
+
+#galeriCarousel .carousel-control-prev:hover .carousel-control-icon i,
+#galeriCarousel .carousel-control-next:hover .carousel-control-icon i {
+    color: white;
+}
+
+/* Carousel Indicators untuk Galeri */
+#galeriCarousel .carousel-indicators {
+    bottom: -45px;
+    margin-bottom: 0;
+}
+
+#galeriCarousel .carousel-indicators li {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.3);
+    border: none;
+    margin: 0 6px;
+    transition: all 0.3s ease;
+}
+
+#galeriCarousel .carousel-indicators li.active {
+    width: 35px;
+    border-radius: 6px;
+    background: var(--primary);
+}
+
+/* Responsive Galeri */
+@media(max-width:992px){
+    .galeri-card-item {
+        height: 340px;
+    }
+    
+    .galeri-card-content h4 {
+        font-size: 21px;
+    }
+}
+
+@media(max-width:768px){
+    .galeri-card-item {
+        height: 300px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .galeri-card-overlay {
+        padding: 25px;
+    }
+    
+    .galeri-card-content h4 {
+        font-size: 18px;
+    }
+    
+    #galeriCarousel .carousel-control-prev,
+    #galeriCarousel .carousel-control-next {
+        width: 48px;
+        height: 48px;
+        opacity: 1;
+    }
+    
+    #galeriCarousel .carousel-control-prev {
+        left: 10px;
+    }
+    
+    #galeriCarousel .carousel-control-next {
+        right: 10px;
+    }
+    
+    #galeriCarousel .carousel-control-icon i {
+        font-size: 20px;
+    }
+    
+    #galeriCarousel .carousel-indicators {
+        bottom: -35px;
+    }
+}
 
 /* ── Kontak ───────────────────────────────────────── */
 .kontak-item { border-radius: 12px; border: 1.5px solid #e0e6f0; overflow: hidden; margin-bottom: 12px; }
@@ -580,24 +677,24 @@ body {
     </div>
     <div class="col-lg-5 d-none d-lg-block">
         <div class="hero-info-card">
-            <div class="card-logo"><i class="fas fa-store"></i></div>
+            <div class="card-logo"><i class="fas fa-chart-line"></i></div>
             <h3 class="text-center">Membangun Ekonomi Lokal<br>yang Berdaya Saing</h3>
             <div class="hero-stat-grid">
                 <div class="hero-stat-cell">
-                    <strong>{{ $stats['total_koperasi'] }}+</strong>
-                    <span>Koperasi Aktif</span>
+                    <strong>{{ $stats['bantuan_aktif'] }}</strong>
+                    <span>Bantuan Aktif</span>
                 </div>
                 <div class="hero-stat-cell">
                     <strong>{{ $stats['total_distrik'] }}</strong>
-                    <span>Distrik</span>
-                </div>
-                <div class="hero-stat-cell">
-                    <strong>{{ $stats['total_bantuan'] }}</strong>
-                    <span>Program Bantuan</span>
+                    <span>Total Distrik</span>
                 </div>
                 <div class="hero-stat-cell">
                     <strong>{{ number_format($stats['total_tenaga']) }}</strong>
                     <span>Tenaga Kerja</span>
+                </div>
+                <div class="hero-stat-cell">
+                    <strong>{{ $stats['total_anggota_terdaftar'] }}</strong>
+                    <span>Anggota Terdaftar</span>
                 </div>
             </div>
         </div>
@@ -612,176 +709,82 @@ body {
 <div class="row">
     <div class="col-6 col-md-3">
         <div class="stat-item">
-            <i class="fas fa-store"></i>
-            <span class="stat-num">{{ $stats['total_koperasi'] }}</span>
-            <div class="stat-label">Koperasi Terverifikasi</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-item">
-            <i class="fas fa-hand-holding-usd"></i>
-            <span class="stat-num">{{ $stats['total_bantuan'] }}</span>
-            <div class="stat-label">Program Bantuan</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-item">
-            <i class="fas fa-map-marked-alt"></i>
-            <span class="stat-num">{{ $stats['total_distrik'] }}</span>
-            <div class="stat-label">Distrik Terjangkau</div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-item">
             <i class="fas fa-users"></i>
-            <span class="stat-num">{{ number_format($stats['total_tenaga']) }}</span>
-            <div class="stat-label">Tenaga Kerja</div>
+            <span class="stat-num">{{ $stats['total_anggota'] }}</span>
+            <div class="stat-label">Anggota Koperasi Aktif</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-item">
+            <i class="fas fa-male"></i>
+            <span class="stat-num">{{ $stats['anggota_laki'] }}</span>
+            <div class="stat-label">Jumlah Laki-laki</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-item">
+            <i class="fas fa-female"></i>
+            <span class="stat-num">{{ $stats['anggota_perempuan'] }}</span>
+            <div class="stat-label">Jumlah Perempuan</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-item">
+            <i class="fas fa-user-check"></i>
+            <span class="stat-num">{{ $stats['total_terdaftar'] }}</span>
+            <div class="stat-label">Total Anggota Terdaftar</div>
         </div>
     </div>
 </div>
-</div>
-</section>
-
-{{-- ═════════════════════ LAYANAN ═════════════════════ --}}
-<section class="section">
-<div class="container">
-    <div class="section-title">
-        <span class="eyebrow">Apa yang Kami Tawarkan</span>
-        <h2>Layanan Kami</h2>
-        <p>Berbagai layanan untuk mendukung pertumbuhan Koperasi di Tolikara</p>
-        <div class="title-line"></div>
-    </div>
-    <div class="row">
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="layanan-item">
-                <div class="icon-wrap" style="background:#eff6ff">
-                    <i class="fas fa-file-alt fa-lg" style="color:#1d4ed8"></i>
-                </div>
-                <h5>Pendaftaran Koperasi</h5>
-                <p>Daftarkan usaha Anda secara online dan dapatkan nomor registrasi resmi dari dinas.</p>
-            </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="layanan-item">
-                <div class="icon-wrap" style="background:#fff7ed">
-                    <i class="fas fa-hand-holding-usd fa-lg" style="color:#ea580c"></i>
-                </div>
-                <h5>Bantuan Usaha</h5>
-                <p>Program bantuan modal, peralatan, dan pelatihan untuk mendukung perkembangan usaha.</p>
-            </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="layanan-item">
-                <div class="icon-wrap" style="background:#f0fdf4">
-                    <i class="fas fa-graduation-cap fa-lg" style="color:#15803d"></i>
-                </div>
-                <h5>Pelatihan & Pembinaan</h5>
-                <p>Pelatihan kewirausahaan, manajemen usaha, dan pemasaran produk lokal.</p>
-            </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 mb-4">
-            <div class="layanan-item">
-                <div class="icon-wrap" style="background:#fff1f2">
-                    <i class="fas fa-certificate fa-lg" style="color:#be123c"></i>
-                </div>
-                <h5>Sertifikasi Produk</h5>
-                <p>Pendampingan proses sertifikasi halal, PIRT, dan izin usaha lainnya.</p>
-            </div>
-        </div>
-    </div>
-</div>
-</section>
-
-{{-- ══════════════════ Koperasi UNGGULAN ══════════════════ --}}
-<section class="section section-alt">
-<div class="container">
-    <div class="section-title">
-        <span class="eyebrow">Pelaku Usaha Terpilih</span>
-        <h2>Koperasi Unggulan</h2>
-        <p>Pelaku usaha terdaftar dan terverifikasi di Kabupaten Tolikara</p>
-        <div class="title-line"></div>
-    </div>
-    <div class="row">
-    @forelse($koperasi_unggulan as $u)
-        <div class="col-lg-4 col-md-6 mb-4 d-flex">
-            <div class="card-koperasi w-100">
-                <div class="card-thumb">
-                    @if($u->foto_usaha)
-                        <img src="{{ asset('storage/'.$u->foto_usaha) }}" alt="{{ $u->nama_usaha }}">
-                    @else
-                        <i class="fas fa-store"></i>
-                    @endif
-                </div>
-                <div class="card-body">
-                    <span class="badge-kat {{ strtolower($u->kategori) }}">{{ ucfirst($u->kategori) }}</span>
-                    <h5>{{ $u->nama_usaha }}</h5>
-                    <p class="koperasi-distrik">
-                        <i class="fas fa-map-marker-alt mr-1" style="color:var(--secondary)"></i>{{ $u->distrik }}
-                    </p>
-                    <p class="koperasi-jenis">{{ Str::limit($u->jenis_usaha, 60) }}</p>
-                    <a href="{{ route('public.koperasi.detail', $u) }}" class="btn-detail">Lihat Detail</a>
-                </div>
-            </div>
-        </div>
-    @empty
-        <div class="col-12 text-center py-5 text-muted">
-            <i class="fas fa-store fa-3x mb-3 d-block" style="opacity:.18"></i>
-            Belum ada Koperasi terdaftar
-        </div>
-    @endforelse
-    </div>
-    <div class="text-center mt-4">
-        <a href="{{ route('public.koperasi') }}" class="btn-main">
-            <i class="fas fa-arrow-right"></i> Lihat Semua Koperasi
-        </a>
-    </div>
 </div>
 </section>
 
 {{-- ══════════════════ BERITA TERBARU ══════════════════ --}}
 @if($berita_terbaru->count())
-<section class="section">
-<div class="container">
+<section class="section" style="padding:90px 0;background:#f8fafc">
+<div class="container-fluid" style="max-width:1500px;padding-left:35px;padding-right:35px">
     <div class="section-title">
         <span class="eyebrow">Informasi Terkini</span>
         <h2>Berita Terbaru</h2>
         <p>Informasi dan kegiatan terkini dari DISPERINDAGKOP Tolikara</p>
         <div class="title-line"></div>
     </div>
-    <div class="row">
+    <div class="row" style="margin-left:-18px;margin-right:-18px">
     @foreach($berita_terbaru as $b)
-        <div class="col-lg-4 col-md-6 mb-4 d-flex">
-            <div class="card-news w-100">
-                <div class="news-thumb">
+        <div class="col-lg-4 col-md-6 mb-5" style="padding-left:18px;padding-right:18px">
+            <a href="{{ route('public.berita.detail', $b) }}" class="card-news" style="text-decoration:none;display:block;height:100%">
+                <div class="news-thumb" style="height:420px;overflow:hidden;border-radius:18px 18px 0 0;position:relative">
                     @if($b->thumbnail)
-                        <img src="{{ asset('storage/'.$b->thumbnail) }}" alt="{{ $b->judul }}">
+                        <img src="{{ asset('storage/'.$b->thumbnail) }}" 
+                             alt="{{ $b->judul }}"
+                             style="width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease"
+                             loading="lazy">
                     @else
-                        <div class="thumb-placeholder">
-                            <i class="fas fa-newspaper fa-3x" style="color:rgba(255,255,255,.25)"></i>
+                        <div class="thumb-placeholder" style="width:100%;height:100%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center">
+                            <i class="fas fa-newspaper" style="font-size:72px;color:rgba(255,255,255,0.35)"></i>
                         </div>
                     @endif
                 </div>
-                <div class="news-body">
-                    <div class="news-meta">
-                        <i class="fas fa-calendar-alt"></i>
-                        {{ $b->created_at->format('d M Y') }}
-                        <span class="dot"></span>
-                        {{ ucfirst($b->kategori ?? 'Umum') }}
+                <div class="news-body" style="padding:28px;background:white;border-radius:0 0 18px 18px">
+                    <h5 style="color:#1a3a6e;font-weight:700;font-size:20px;margin-bottom:14px;line-height:1.4">
+                        {{ Str::limit($b->judul, 70) }}
+                    </h5>
+                    <p style="color:#64748b;font-size:15px;line-height:1.75;margin-bottom:18px">
+                        {{ Str::limit(strip_tags($b->konten), 120) }}
+                    </p>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid #f1f5f9">
+                        <small style="color:#94a3b8;font-size:14px;font-weight:500">
+                            <i class="far fa-calendar mr-1"></i>
+                            {{ $b->created_at->format('d M Y') }}
+                        </small>
+                        <span class="btn-baca" style="color:#1a3a6e;font-weight:600;font-size:15px">
+                            Baca <i class="fas fa-arrow-right ml-1"></i>
+                        </span>
                     </div>
-                    <h5>{{ Str::limit($b->judul, 65) }}</h5>
-                    <p>{{ Str::limit(strip_tags($b->konten), 110) }}</p>
-                    <a href="{{ route('public.berita.detail', $b) }}" class="btn-baca">
-                        Baca Selengkapnya <i class="fas fa-arrow-right"></i>
-                    </a>
                 </div>
-            </div>
+            </a>
         </div>
     @endforeach
-    </div>
-    <div class="text-center mt-4">
-        <a href="{{ route('public.berita') }}" class="btn-main">
-            <i class="fas fa-newspaper"></i> Lihat Semua Berita
-        </a>
     </div>
 </div>
 </section>
@@ -789,27 +792,65 @@ body {
 
 {{-- ═══════════════════ GALERI KEGIATAN ═══════════════ --}}
 @if($galeri->count())
-<section class="section section-alt">
-<div class="container">
+<section class="section section-alt" style="padding:90px 0">
+<div class="container-fluid" style="max-width:1500px;padding-left:35px;padding-right:35px">
     <div class="section-title">
         <span class="eyebrow">Dokumentasi</span>
         <h2>Galeri Kegiatan</h2>
         <p>Dokumentasi kegiatan dan program DISPERINDAGKOP Tolikara</p>
         <div class="title-line"></div>
     </div>
-    <div class="row">
-    @foreach($galeri as $g)
-        <div class="col-lg-4 col-sm-6 mb-3">
-            <div class="galeri-item">
-                <img src="{{ asset('storage/'.$g->foto) }}"
-                     alt="{{ $g->judul }}"
-                     onerror="this.src='https://via.placeholder.com/500x215?text=Galeri'">
-                <div class="overlay">{{ $g->judul }}</div>
+    
+    {{-- Carousel Galeri 3 Kolom --}}
+    <div id="galeriCarousel" class="carousel slide" data-ride="carousel" data-interval="4500">
+        <div class="carousel-inner">
+            @php
+                $chunks = $galeri->chunk(3);
+            @endphp
+            
+            @foreach($chunks as $index => $chunk)
+            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                <div class="row" style="margin-left:-18px;margin-right:-18px">
+                    @foreach($chunk as $g)
+                    <div class="col-lg-4 col-md-4 mb-4 mb-lg-0" style="padding-left:18px;padding-right:18px">
+                        <div class="galeri-card-item">
+                            <img src="{{ asset('storage/'.$g->foto) }}"
+                                 alt="{{ $g->judul }}"
+                                 onerror="this.src='https://via.placeholder.com/500x400?text=Galeri'">
+                            <div class="galeri-card-overlay">
+                                <div class="galeri-card-content">
+                                    <h4>{{ $g->judul }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
             </div>
+            @endforeach
         </div>
-    @endforeach
+        
+        {{-- Controls --}}
+        <a class="carousel-control-prev" href="#galeriCarousel" role="button" data-slide="prev">
+            <span class="carousel-control-icon">
+                <i class="fas fa-chevron-left"></i>
+            </span>
+        </a>
+        <a class="carousel-control-next" href="#galeriCarousel" role="button" data-slide="next">
+            <span class="carousel-control-icon">
+                <i class="fas fa-chevron-right"></i>
+            </span>
+        </a>
+        
+        {{-- Indicators --}}
+        <ol class="carousel-indicators">
+            @foreach($chunks as $index => $chunk)
+            <li data-target="#galeriCarousel" data-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}"></li>
+            @endforeach
+        </ol>
     </div>
-    <div class="text-center mt-4">
+    
+    <div class="text-center mt-5 pt-3">
         <a href="{{ route('public.galeri') }}" class="btn-main">
             <i class="fas fa-images"></i> Lihat Semua Galeri
         </a>
@@ -874,32 +915,6 @@ body {
 </div>
 </section>
 
-{{-- ══════════════════════ CTA ═════════════════════════ --}}
-<section class="cta-wrap">
-<div class="container inner">
-    <h2>Daftarkan Usaha Anda<br>Sekarang</h2>
-    <p>Bergabunglah bersama pelaku Koperasi Tolikara yang telah terdata dan mendapat akses bantuan langsung dari pemerintah.</p>
-    <a href="{{ route('daftar-anggota') }}" class="btn-cta">
-        <i class="fas fa-user-plus"></i> Daftar Sekarang
-    </a>
-</div>
-</section>
-
-{{-- ═══════════ LOKASI & PETA ═══════════ --}}
-<section class="section section-alt">
-    <div class="container">
-        <div class="section-title">
-            <span class="eyebrow">Lokasi Kami</span>
-            <h2>Temukan Kantor DISPERINDAGKOP</h2>
-            <p>Jl. Raya Karubaga, Kabupaten Tolikara, Papua Pegunungan</p>
-        </div>
-    </div>
-</section>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<section style="padding:30px 0;background:#1a2942;">
-<div id="peta-disperindagkop" style="height:420px;width:100%;z-index:1"></div>
-</section>
 {{-- ════════════ SCRIPTS — hanya 1x @push ════════════ --}}
 @push('scripts')
 <script>
@@ -936,77 +951,6 @@ updateJam();
 setInterval(updateJam, 1000);
 </script>
 
-{{-- ═══════════ PETA LEAFLET ═══════════ --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-
-</section>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Koordinat Kantor DISPERINDAGKOP Tolikara (Karubaga)
-    var kantorLat = -3.610, kantorLng = 138.462;
-
-    var map = L.map('peta-disperindagkop').setView([kantorLat, kantorLng], 10);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18
-    }).addTo(map);
-
-    // Icon kantor (biru)
-    var iconKantor = L.divIcon({
-        className: '',
-        html: '<div style="background:#1a3a6e;color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><i class="fas fa-building"></i> DISPERINDAGKOP</div>',
-        iconAnchor: [75, 30]
-    });
-
-    // Icon Koperasi (kuning)
-    var iconKoperasi = L.divIcon({
-        className: '',
-        html: '<div style="background:#f5a623;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff"><i class="fas fa-store"></i></div>',
-        iconAnchor: [14, 14]
-    });
-
-    // Marker Kantor
-    L.marker([kantorLat, kantorLng], {icon: iconKantor})
-        .addTo(map)
-        .bindPopup('<b>Kantor DISPERINDAGKOP</b><br>Jl. Raya Karubaga, Kab. Tolikara<br>Papua Pegunungan<br><small>Senin-Jumat: 08.00-16.00 WIT</small>');
-
-    // Sebaran Koperasi per distrik Tolikara
-    var distrikKoperasi = [
-        {nama:'Bokondini',      lat:-3.648, lng:138.672, jml:5},
-        {nama:'Karubaga',       lat:-3.610, lng:138.462, jml:4},
-        {nama:'Kembu',          lat:-3.580, lng:138.520, jml:2},
-        {nama:'Bewani',         lat:-3.700, lng:138.395, jml:1},
-        {nama:'Kanggime',       lat:-3.540, lng:138.340, jml:1},
-        {nama:'Bokoneri',       lat:-3.670, lng:138.500, jml:1},
-        {nama:'Nunggawi',       lat:-3.625, lng:138.580, jml:1},
-        {nama:'Goyage',         lat:-3.590, lng:138.430, jml:1},
-    ];
-
-    distrikKoperasi.forEach(function(d) {
-        var marker = L.marker([d.lat, d.lng], {icon: iconKoperasi}).addTo(map);
-        marker.bindPopup(
-            '<b>Distrik ' + d.nama + '</b><br>' +
-            '<i class="fas fa-store mr-1"></i><b>' + d.jml + ' Koperasi</b> terdaftar<br>' +
-            '<small>Kabupaten Tolikara</small>'
-        );
-    });
-
-    // Legenda
-    var legenda = L.control({position: 'bottomright'});
-    legenda.onAdd = function() {
-        var div = L.DomUtil.create('div');
-        div.style.cssText = 'background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:12px;line-height:1.8';
-        div.innerHTML = '<b style="color:#1a3a6e">Keterangan</b><br>' +
-            '<span style="background:#1a3a6e;color:#fff;padding:2px 7px;border-radius:4px;font-size:11px">&#9632;</span> Kantor DISPERINDAGKOP<br>' +
-            '<span style="background:#f5a623;color:#fff;padding:2px 7px;border-radius:4px;font-size:11px">&#9632;</span> Sebaran Koperasi';
-        return div;
-    };
-    legenda.addTo(map);
-});
-</script>
 @endpush
 
 @endsection

@@ -29,6 +29,11 @@ class User extends Authenticatable
         return $this->hasOne(Koperasi::class);
     }
 
+    public function anggota()
+    {
+        return $this->hasOne(Anggota::class);
+    }
+
     public function notifikasi()
     {
         return $this->hasMany(Notifikasi::class)->latest();
@@ -49,6 +54,7 @@ class User extends Authenticatable
     public function isPetugas(): bool  { return $this->role === 'petugas'; }
     public function isPimpinan(): bool { return $this->role === 'pimpinan'; }
     public function isKoperasi(): bool     { return $this->role === 'koperasi'; }
+    public function isAnggota(): bool  { return $this->role === 'anggota'; }
 
     public function getDashboardRoute(): string
     {

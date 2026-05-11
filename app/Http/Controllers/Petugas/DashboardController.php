@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers\Petugas;
 use App\Http\Controllers\Controller;
+use App\Models\Anggota;
 use App\Models\Bantuan;
 use App\Models\Koperasi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DashboardController extends Controller
@@ -11,13 +13,40 @@ class DashboardController extends Controller
     public function index()
     {
         $stats = [
+            'total_anggota'     => Anggota::count(),
+            'anggota_aktif'     => Anggota::where('status', 'aktif')->count(),
+            'anggota_pending'   => Anggota::where('status', 'pending')->count(),
+            'anggota_ditolak'   => Anggota::where('status', 'Ditolak')->count(),
             'total_koperasi'    => Koperasi::count(),
             'koperasi_pending'  => Koperasi::where('status_verifikasi','pending')->count(),
             'koperasi_verified' => Koperasi::where('status_verifikasi','diverifikasi')->count(),
-            'total_bantuan' => Bantuan::where('status','aktif')->count(),
+            'total_bantuan'     => Bantuan::where('status','aktif')->count(),
         ];
-        $koperasi_pending = Koperasi::where('status_verifikasi','pending')->latest()->take(5)->get();
-        return view('petugas.dashboard', compact('stats','koperasi_pending'));
+        
+        // Anggota pending untuk tabel
+        $anggota_pending = Anggota::where('status', 'pending')->latest()->take(5)->get();
+        
+        // Data untuk grafik anggota per distrik
+        $anggotaPerDistrik = Anggota::selectRaw('distrik, count(*) as total')
+            ->whereNotNull('distrik')
+            ->groupBy('distrik')
+            ->orderBy('total', 'desc')
+            ->get();
+        
+        // Data untuk grafik status anggota
+        $anggotaPerStatus = Anggota::selectRaw('status, count(*) as total')
+            ->whereNotNull('status')
+            ->groupBy('status')
+            ->get();
+        
+        // Data untuk grafik trend pendaftaran anggota (6 bulan terakhir)
+        $trendPendaftaran = Anggota::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as bulan, count(*) as total')
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('bulan')
+            ->orderBy('bulan', 'asc')
+            ->get();
+        
+        return view('petugas.dashboard', compact('stats', 'anggota_pending', 'anggotaPerDistrik', 'anggotaPerStatus', 'trendPendaftaran'));
     }
 
     public function profile()

@@ -58,14 +58,47 @@ $bidangConfig = [
         <hr class="flex-grow-1 ml-3" style="border-color:{{ $cfg['color'] }};opacity:.3;">
     </div>
 
+    @if($key === 'kepala_dinas')
+    {{-- Kepala Dinas - Centered and Larger --}}
+    <div class="row justify-content-center">
+        @foreach($items as $s)
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card border-0 shadow-lg text-center h-100" style="border-radius:20px;border-top:6px solid {{ $cfg['color'] }}!important;transition:.3s;" onmouseover="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 50px rgba(26,58,110,.25)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 10px 30px rgba(0,0,0,.15)'">
+                <div class="card-body p-4">
+                    <div class="mb-4 d-flex justify-content-center">
+                        <img src="{{ $s->foto_url }}"
+                             class="border shadow"
+                             style="width:220px;height:280px;object-fit:cover;object-position:center;border-color:{{ $cfg['color'] }}!important;border-width:4px!important;border-radius:12px;">
+                    </div>
+                    <h5 class="font-weight-bold mb-2" style="font-size:1.3rem;color:#1a3a6e;">
+                        {{ $s->nama ?? '( - )' }}
+                    </h5>
+                    @if($s->nip)
+                    <p class="text-muted mb-3" style="font-size:14px;">NIP: {{ $s->nip }}</p>
+                    @endif
+                    <span class="badge badge-lg" style="background:{{ $cfg['color'] }};color:white;font-size:14px;white-space:normal;line-height:1.6;padding:10px 20px;border-radius:8px;font-weight:600;">
+                        {{ $s->jabatan }}
+                    </span>
+                    @if($s->sub_jabatan)
+                    <div class="mt-3"><p class="text-muted mb-0" style="font-size:13px;">{{ $s->sub_jabatan }}</p></div>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @else
+    {{-- Other Positions - Regular Grid --}}
     <div class="row">
         @foreach($items as $s)
         <div class="col-lg-3 col-md-4 col-6 mb-4">
             <div class="card border-0 shadow-sm text-center h-100" style="border-radius:12px;border-top:4px solid {{ $cfg['color'] }}!important;transition:.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                 <div class="card-body p-3">
-                    <img src="{{ $s->foto_url }}"
-                         class="rounded-circle mb-3 border"
-                         style="width:80px;height:80px;object-fit:cover;border-color:{{ $cfg['color'] }}!important;border-width:3px!important;">
+                    <div class="mb-3 d-flex justify-content-center">
+                        <img src="{{ $s->foto_url }}"
+                             class="border shadow-sm"
+                             style="width:160px;height:220px;object-fit:cover;object-position:center;border-color:{{ $cfg['color'] }}!important;border-width:3px!important;border-radius:8px;">
+                    </div>
                     <h6 class="font-weight-bold mb-1" style="font-size:13px;color:#333;">
                         {{ $s->nama ?? '( - )' }}
                     </h6>
@@ -83,6 +116,7 @@ $bidangConfig = [
         </div>
         @endforeach
     </div>
+    @endif
 </div>
 @endif
 @endforeach

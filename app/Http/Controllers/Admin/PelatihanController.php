@@ -10,53 +10,133 @@ class PelatihanController extends Controller
 {
     public function index()
     {
-        $pelatihan = Pelatihan::withCount('pendaftaran')->orderBy('tanggal_mulai', 'desc')->get();
+        $pelatihan = Pelatihan::withCount('pendaftaran')
+            ->orderBy('tanggal_mulai', 'desc')
+            ->get();
         return view('admin.pelatihan.index', compact('pelatihan'));
     }
+
     public function create()
     {
         return view('admin.pelatihan.create');
     }
+
+    public function show(Pelatihan $pelatihan)
+    {
+        $pelatihan->loadCount('pendaftaran');
+
+        $pesertaDiterima = $pelatihan->pendaftaran()->where('status', 'diterima')->count();
+        $pesertaMenunggu = $pelatihan->pendaftaran()->where('status', 'menunggu')->count();
+        $pesertaDitolak = $pelatihan->pendaftaran()->where('status', 'ditolak')->count();
+
+        return view('admin.pelatihan.show', compact('pelatihan', 'pesertaDiterima', 'pesertaMenunggu', 'pesertaDitolak'));
+    }
+
     public function store(Request $request)
     {
-        $request->validate(['judul' => 'required', 'tanggal_mulai' => 'required|date']);
-        $d = $request->only(['judul', 'deskripsi', 'penyelenggara', 'tanggal_mulai', 'tanggal_selesai', 'lokasi', 'kuota', 'status', 'syarat']);
-        if ($request->hasFile('foto'))
-            $d['foto'] = $request->file('foto')->store('pelatihan', 'public');
-        Pelatihan::create($d);
-        return redirect()->route('admin.pelatihan.index')->with('success', 'Pelatihan berhasil ditambah!');
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'penyelenggara' => 'nullable|string|max:255',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'lokasi' => 'nullable|string|max:255',
+            'kuota' => 'nullable|integer|min:0',
+            'status' => 'required|in:dibuka,berlangsung,ditutup,selesai',
+            'syarat' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpeg,jpg,png|max:2048'
+        ], [
+            'judul.required' => 'Judul pelatihan wajib diisi',
+            'tanggal_mulai.required' => 'Tanggal mulai wajib diisi',
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
+            'foto.image' => 'File harus berupa gambar',
+            'foto.max' => 'Ukuran foto maksimal 2MB'
+        ]);
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('pelatihan', 'public');
+        }
+
+        Pelatihan::create($validated);
+
+        return redirect()->route('admin.pelatihan.index')
+            ->with('success', 'Pelatihan berhasil ditambahkan!');
     }
+
     public function edit(Pelatihan $pelatihan)
     {
         return view('admin.pelatihan.edit', compact('pelatihan'));
     }
+
     public function update(Request $request, Pelatihan $pelatihan)
     {
-        $request->validate(['judul' => 'required', 'tanggal_mulai' => 'required|date']);
-        $d = $request->only(['judul', 'deskripsi', 'penyelenggara', 'tanggal_mulai', 'tanggal_selesai', 'lokasi', 'kuota', 'status', 'syarat']);
+        $validated = $request->validate([
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'penyelenggara' => 'nullable|string|max:255',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'lokasi' => 'nullable|string|max:255',
+            'kuota' => 'nullable|integer|min:0',
+            'status' => 'required|in:dibuka,berlangsung,ditutup,selesai',
+            'syarat' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpeg,jpg,png|max:2048'
+        ], [
+            'judul.required' => 'Judul pelatihan wajib diisi',
+            'tanggal_mulai.required' => 'Tanggal mulai wajib diisi',
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai',
+            'foto.image' => 'File harus berupa gambar',
+            'foto.max' => 'Ukuran foto maksimal 2MB'
+        ]);
+
         if ($request->hasFile('foto')) {
-            if ($pelatihan->foto)
+            // Hapus foto lama jika ada
+            if ($pelatihan->foto && Storage::disk('public')->exists($pelatihan->foto)) {
                 Storage::disk('public')->delete($pelatihan->foto);
-            $d['foto'] = $request->file('foto')->store('pelatihan', 'public');
+            }
+            $validated['foto'] = $request->file('foto')->store('pelatihan', 'public');
         }
-        $pelatihan->update($d);
-        return redirect()->route('admin.pelatihan.index')->with('success', 'Pelatihan diperbarui!');
+
+        $pelatihan->update($validated);
+
+        return redirect()->route('admin.pelatihan.index')
+            ->with('success', 'Pelatihan berhasil diperbarui!');
     }
+
     public function destroy(Pelatihan $pelatihan)
     {
-        if ($pelatihan->foto)
+        // Hapus foto jika ada
+        if ($pelatihan->foto && Storage::disk('public')->exists($pelatihan->foto)) {
             Storage::disk('public')->delete($pelatihan->foto);
+        }
+
         $pelatihan->delete();
-        return redirect()->route('admin.pelatihan.index')->with('success', 'Pelatihan dihapus!');
+
+        return redirect()->route('admin.pelatihan.index')
+            ->with('success', 'Pelatihan berhasil dihapus!');
     }
+
     public function peserta(Pelatihan $pelatihan)
     {
-        $peserta = $pelatihan->pendaftaran()->orderBy('created_at', 'desc')->get();
+        $peserta = $pelatihan->pendaftaran()
+            ->with('koperasi')
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('admin.pelatihan.peserta', compact('pelatihan', 'peserta'));
     }
+
     public function updateStatusPeserta(Request $request, PendaftaranPelatihan $pendaftaran)
     {
-        $pendaftaran->update(['status' => $request->status, 'catatan' => $request->catatan]);
-        return back()->with('success', 'Status peserta diperbarui!');
+        $request->validate([
+            'status' => 'required|in:menunggu,diterima,ditolak',
+            'catatan' => 'nullable|string'
+        ]);
+
+        $pendaftaran->update([
+            'status' => $request->status,
+            'catatan' => $request->catatan
+        ]);
+
+        return back()->with('success', 'Status peserta berhasil diperbarui!');
     }
 }

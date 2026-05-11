@@ -1,67 +1,196 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'DejaVu Sans', sans-serif; font-size: 12px; color: #1a1a1a; }
-.kop { border-bottom: 3px solid #0d2240; padding-bottom: 12px; margin-bottom: 20px; display: table; width: 100%; }
-.kop-logo { display: table-cell; width: 80px; vertical-align: middle; }
-.kop-logo img { width: 70px; height: 70px; object-fit: contain; }
-.kop-teks { display: table-cell; vertical-align: middle; padding-left: 14px; }
-.kop-teks .instansi { font-size: 17px; font-weight: 700; color: #0d2240; }
-.kop-teks .sub { font-size: 11px; color: #444; margin-top: 2px; }
-.kop-teks .alamat { font-size: 9.5px; color: #666; margin-top: 3px; }
-.label-pengumuman { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #0d2240; margin-bottom: 6px; }
-.garis { border: none; border-top: 1.5px solid #0d2240; margin: 0 auto 18px; width: 60px; }
-.badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
-.badge-info { background: #dbeafe; color: #1d4ed8; }
-.badge-warning { background: #fef9c3; color: #a16207; }
-.badge-success { background: #dcfce7; color: #15803d; }
-.badge-danger { background: #ffe4e6; color: #be123c; }
-.judul { font-size: 15px; font-weight: 700; color: #0d2240; margin-bottom: 6px; line-height: 1.4; }
-.meta { font-size: 10px; color: #888; margin-bottom: 16px; }
-.isi { font-size: 12px; line-height: 1.9; color: #333; text-align: justify; }
-.link-box { margin-top: 16px; padding: 8px 12px; background: #f0f4ff; border-left: 3px solid #1d4ed8; font-size: 11px; color: #1d4ed8; word-break: break-all; }
-.footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 1px solid #ddd; padding: 6px 20px; font-size: 9px; color: #aaa; text-align: center; }
-</style>
+    <meta charset="utf-8">
+    <title>{{ $p->judul }}</title>
+    <style>
+        @page {
+            margin: 1.5cm 2cm;
+        }
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #1a3a6e;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 70px;
+            height: 70px;
+        }
+        .header h4 {
+            margin: 3px 0;
+            font-size: 10pt;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #1a3a6e;
+        }
+        .header h3 {
+            margin: 3px 0;
+            font-size: 12pt;
+            font-weight: bold;
+            color: #1a3a6e;
+        }
+        .header p {
+            margin: 2px 0;
+            font-size: 9pt;
+            color: #555;
+        }
+        .pengumuman-label {
+            text-align: center;
+            font-size: 11pt;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #1a3a6e;
+            margin: 15px 0 10px;
+            padding: 5px 0;
+        }
+        .title {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            color: #1a3a6e;
+            margin: 12px 0;
+            line-height: 1.4;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 8pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+        .badge-info { background: #3b82f6; color: white; }
+        .badge-penting { background: #fbbf24; color: white; }
+        .badge-urgent { background: #ef4444; color: white; }
+        .date-info {
+            text-align: center;
+            background: #f0f4ff;
+            padding: 8px 12px;
+            margin: 12px 0;
+            font-size: 10pt;
+            color: #1a3a6e;
+            font-weight: 600;
+        }
+        .content {
+            padding: 15px 0;
+            margin: 15px 0;
+            text-align: justify;
+            line-height: 1.6;
+            font-size: 11pt;
+        }
+        .link-box {
+            background: #f0f9ff;
+            padding: 10px;
+            margin: 12px 0;
+            border-left: 3px solid #0284c7;
+        }
+        .link-box strong {
+            color: #0369a1;
+            font-size: 10pt;
+        }
+        .link-box span {
+            color: #0284c7;
+            word-break: break-all;
+            font-size: 9pt;
+        }
+        .pembuat {
+            text-align: right;
+            margin-top: 30px;
+        }
+        .pembuat .label {
+            font-size: 10pt;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 25px;
+        }
+        .pembuat .nama {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #1a3a6e;
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            font-size: 9pt;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-<div class="kop">
-    <div class="kop-logo">
-        <img src="{{ public_path('images/logo-dinas.png') }}">
+    {{-- Header Surat dengan Logo --}}
+    <div class="header">
+        <div class="logo-container">
+            <img src="{{ public_path('images/logo.png') }}" alt="Logo" class="logo">
+        </div>
+        <h4>Pemerintah Kabupaten Tolikara</h4>
+        <h3>DINAS PERINDUSTRIAN, PERDAGANGAN & KOPERASI</h3>
+        <p>Jl. Raya Karubaga, Kabupaten Tolikara, Papua Pegunungan</p>
+        <p>Telp: (0969) 31XXX | Email: disperindagkop@tolikara.go.id</p>
     </div>
-    <div class="kop-teks">
-        <div class="instansi">DINAS PERINDUSTRIAN, PERDAGANGAN DAN Koperasi</div>
-        <div class="sub">KABUPATEN TOLIKARA</div>
-        <div class="alamat">Karubaga, Tolikara, Papua Pegunungan &nbsp;|&nbsp; disperindagkop@tolikarakab.go.id</div>
+
+    {{-- Pengumuman Label --}}
+    <div class="pengumuman-label">PENGUMUMAN</div>
+
+    {{-- Judul --}}
+    <div class="title">
+        {{ $p->judul }}
+        @if($p->jenis)
+        <span class="badge badge-{{ $p->jenis }}">{{ strtoupper($p->jenis) }}</span>
+        @endif
     </div>
-</div>
 
-<div class="label-pengumuman">Pengumuman</div>
-<hr class="garis">
-
-@php
-    $badgeClass = ['info'=>'badge-info','warning'=>'badge-warning','success'=>'badge-success','danger'=>'badge-danger'][$p->jenis] ?? 'badge-info';
-@endphp
-<span class="badge {{ $badgeClass }}">{{ ucfirst($p->jenis) }}</span>
-
-<div class="judul">{{ $p->judul }}</div>
-<div class="meta">
-    Tanggal: {{ $p->created_at->format('d F Y') }}
-    @if($p->mulai_tampil && $p->selesai_tampil)
-        &nbsp;|&nbsp; Berlaku: {{ $p->mulai_tampil->format('d/m/Y') }} s/d {{ $p->selesai_tampil->format('d/m/Y') }}
+    {{-- Tanggal --}}
+    @if($p->tanggal && $p->hari && $p->jam && $p->tahun)
+    <div class="date-info">
+        {{ $p->hari }}, {{ \Carbon\Carbon::parse($p->tanggal)->isoFormat('D MMMM') }} {{ $p->tahun }} | {{ $p->jam }} WIT
+    </div>
+    @else
+    <div class="date-info">
+        {{ $p->created_at->isoFormat('dddd, D MMMM Y') }}
+    </div>
     @endif
-</div>
 
-<div class="isi">{{ $p->isi }}</div>
+    {{-- Isi Pengumuman --}}
+    <div class="content">
+        {!! nl2br(e($p->isi)) !!}
+    </div>
 
-@if($p->link)
-<div class="link-box">Info lebih lanjut: {{ $p->link }}</div>
-@endif
+    {{-- Link --}}
+    @if($p->link)
+    <div class="link-box">
+        <strong>Link Terkait:</strong><br>
+        <span>{{ $p->link }}</span>
+    </div>
+    @endif
 
-<div class="footer">
-    Dokumen dicetak dari Sistem Informasi DISPERINDAGKOP Tolikara &nbsp;|&nbsp; {{ now()->format('d/m/Y H:i') }} WIT
-</div>
+    {{-- Pembuat --}}
+    @if($p->pembuat)
+    <div class="pembuat">
+        <div class="label">Hormat kami,</div>
+        <div class="nama">{{ $p->pembuat }}</div>
+    </div>
+    @endif
+
+    {{-- Footer --}}
+    <div class="footer">
+        <p>Dokumen resmi DISPERINDAGKOP Kabupaten Tolikara | Dicetak: {{ now()->isoFormat('D MMMM Y HH:mm') }} WIT</p>
+    </div>
 </body>
 </html>

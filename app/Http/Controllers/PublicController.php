@@ -15,17 +15,22 @@ class PublicController extends Controller
     public function home()
     {
         $stats = [
-            'total_koperasi'    => Koperasi::where('status_verifikasi','diverifikasi')->count(),
-            'total_bantuan' => Bantuan::where('status','selesai')->count(),
-            'total_distrik' => Koperasi::distinct('distrik')->count('distrik'),
-            'total_tenaga'  => Koperasi::sum('jumlah_karyawan'),
+            // Statistik untuk Hero Card (atas)
+            'bantuan_aktif'         => Bantuan::where('status','aktif')->count(),
+            'total_distrik'         => \App\Models\Anggota::where('status', 'Aktif')->distinct('distrik')->count('distrik'),
+            'total_tenaga'          => \App\Models\Anggota::where('status', 'Aktif')->sum('jumlah_karyawan'),
+            'total_anggota_terdaftar' => \App\Models\Anggota::count(),
+            
+            // Statistik untuk Stats Bar (bawah)
+            'total_anggota'         => \App\Models\Anggota::where('status', 'Aktif')->count(),
+            'anggota_laki'          => \App\Models\Anggota::where('status', 'Aktif')->where('jenis_kelamin', 'L')->count(),
+            'anggota_perempuan'     => \App\Models\Anggota::where('status', 'Aktif')->where('jenis_kelamin', 'P')->count(),
+            'total_terdaftar'       => \App\Models\Anggota::count(),
         ];
-        $berita_terbaru = Berita::where('status','published')->latest()->take(3)->get();
-        $koperasi_unggulan  = Koperasi::where('status_verifikasi','diverifikasi')
-                               ->where('status_usaha','aktif')->latest()->take(6)->get();
+        $berita_terbaru = Berita::where('status','publish')->latest()->take(6)->get();
         $galeri         = Galeri::latest()->take(6)->get();
-        $kontaks           = Kontak::orderBy('urutan')->take(5)->get();
-        return view('public.home', compact('stats','berita_terbaru','koperasi_unggulan','galeri','kontaks'));
+        $kontaks        = Kontak::orderBy('urutan')->take(5)->get();
+        return view('public.home', compact('stats','berita_terbaru','galeri','kontaks'));
     }
 
     
@@ -37,6 +42,22 @@ class PublicController extends Controller
 
         public function halaman($slug) {
         if($slug === "struktur" || $slug === "struktur-organisasi") return view("public.struktur");
+        if($slug === "visi-misi") {
+            $visiMisi = \App\Models\VisiMisi::where('status', 'aktif')->first();
+            return view("public.visi-misi", compact('visiMisi'));
+        }
+        if($slug === "perdagangan") return view("public.perdagangan");
+        if($slug === "perindustrian") return view("public.perindustrian");
+        if($slug === "koperasi") {
+            // Statistik berdasarkan Anggota Koperasi yang terdaftar
+            $stats = [
+                "total_anggota" => \App\Models\Anggota::where('status', 'Aktif')->count(),
+                "total_laki" => \App\Models\Anggota::where('status', 'Aktif')->where('jenis_kelamin', 'L')->count(),
+                "total_perempuan" => \App\Models\Anggota::where('status', 'Aktif')->where('jenis_kelamin', 'P')->count(),
+                "total_distrik" => \App\Models\Anggota::where('status', 'Aktif')->distinct("distrik")->count("distrik"),
+            ];
+            return view("public.profil-koperasi", compact("stats"));
+        }
         $halaman = \App\Models\HalamanStatis::where("slug",$slug)->where("status","aktif")->firstOrFail();
         return view("public.halaman", compact("halaman"));
     }
@@ -89,6 +110,63 @@ class PublicController extends Controller
         return view("public.statistik", compact("stats","koperasiPerDistrik","koperasiPerKategori"));
     }
 
+    public function statistikKoperasi() {
+        // Data Statistik Umum
+        $stats = [
+            "total_koperasi" => \App\Models\Koperasi::count(),
+            "koperasi_verified" => \App\Models\Koperasi::where("status_verifikasi","diverifikasi")->count(),
+            "koperasi_aktif" => \App\Models\Koperasi::where("status_usaha","aktif")->count(),
+            "koperasi_pending" => \App\Models\Koperasi::where("status_verifikasi","pending")->count(),
+            "total_distrik" => \App\Models\Koperasi::distinct("distrik")->count("distrik"),
+            "total_karyawan" => \App\Models\Koperasi::sum("jumlah_karyawan") ?? 0,
+            "total_modal" => \App\Models\Koperasi::sum("modal_usaha") ?? 0,
+            "total_omset" => \App\Models\Koperasi::sum("omset_per_bulan") ?? 0,
+        ];
+
+        // Koperasi per Distrik (Top 10)
+        $koperasiPerDistrik = \App\Models\Koperasi::selectRaw("distrik, COUNT(*) as total")
+            ->whereNotNull("distrik")
+            ->groupBy("distrik")
+            ->orderBy("total","desc")
+            ->limit(10)
+            ->get();
+
+        // Koperasi per Kategori
+        $koperasiPerKategori = \App\Models\Koperasi::selectRaw("kategori, COUNT(*) as total")
+            ->whereNotNull("kategori")
+            ->groupBy("kategori")
+            ->get();
+
+        // Koperasi per Status Verifikasi
+        $koperasiPerStatus = \App\Models\Koperasi::selectRaw("status_verifikasi, COUNT(*) as total")
+            ->groupBy("status_verifikasi")
+            ->get();
+
+        // Koperasi per Jenis Usaha (Top 10)
+        $koperasiPerJenis = \App\Models\Koperasi::selectRaw("jenis_usaha, COUNT(*) as total")
+            ->whereNotNull("jenis_usaha")
+            ->groupBy("jenis_usaha")
+            ->orderBy("total","desc")
+            ->limit(10)
+            ->get();
+
+        // Trend Pendaftaran per Bulan (12 bulan terakhir)
+        $trendPendaftaran = \App\Models\Koperasi::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as bulan, COUNT(*) as total")
+            ->where("created_at", ">=", now()->subMonths(12))
+            ->groupBy("bulan")
+            ->orderBy("bulan")
+            ->get();
+
+        return view("public.statistik-koperasi", compact(
+            "stats",
+            "koperasiPerDistrik",
+            "koperasiPerKategori",
+            "koperasiPerStatus",
+            "koperasiPerJenis",
+            "trendPendaftaran"
+        ));
+    }
+
     public function daftarKoperasi() {
         return redirect()->route("register");
     }
@@ -130,52 +208,203 @@ class PublicController extends Controller
 
     public function koperasi(Request $request)
     {
-        $query = Koperasi::with('dokumen')->where('status_verifikasi','diverifikasi')->where('status_usaha','aktif');
+        // Daftar lengkap distrik di Kabupaten Tolikara
+        $distrikTolikara = [
+            'Karubaga',
+            'Bokondini',
+            'Kanggime',
+            'Kembu',
+            'Gearek',
+            'Gika',
+            'Umagi',
+            'Wunim',
+            'Airgaram',
+            'Bewani',
+            'Bogonuk',
+            'Bokoneri',
+            'Biuk',
+            'Dow',
+            'Dundu',
+            'Egiam',
+            'Geya',
+            'Gilubandu',
+            'Goyage',
+            'Gundagi',
+            'Kai',
+            'Kamboneri',
+            'Kondaga',
+            'Kuari',
+            'Kubu',
+            'Nabunage',
+            'Nelawi',
+            'Numba',
+            'Nunggawi',
+            'Panaga',
+            'Poganeri',
+            'Tagime',
+            'Tagineri',
+            'Telenggeme',
+            'Timori',
+            'Wakuwo',
+            'Wari/Taiyeve II',
+            'Wenam',
+            'Wina',
+            'Wollo',
+            'Wugi',
+            'Yuko',
+            'Yuneri',
+        ];
+        
+        // Menampilkan Anggota Koperasi yang sudah diterima (status Aktif)
+        $query = \App\Models\Anggota::where('status', 'Aktif');
+        
+        // Filter pencarian
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
-                $q->where('nama_usaha','like','%'.$request->search.'%')
-                  ->orWhere('jenis_usaha','like','%'.$request->search.'%')
-                  ->orWhere('nama_pemilik','like','%'.$request->search.'%');
+                $q->where('nama','like','%'.$request->search.'%')
+                  ->orWhere('nama_usaha','like','%'.$request->search.'%')
+                  ->orWhere('no_anggota','like','%'.$request->search.'%');
             });
         }
-        if ($request->filled('kategori')) $query->where('kategori', $request->kategori);
-        if ($request->filled('distrik'))  $query->where('distrik',  $request->distrik);
-        $koperasi    = $query->latest()->paginate(12)->appends($request->query());
-        $distrik = Koperasi::listDistrik();
-        return view('public.koperasi', compact('koperasi','distrik'));
+        
+        // Filter distrik
+        if ($request->filled('distrik')) {
+            $query->where('distrik', $request->distrik);
+        }
+        
+        $anggota = $query->latest()->paginate(12)->appends($request->query());
+        
+        // Gunakan daftar distrik lengkap Tolikara
+        $distrik = $distrikTolikara;
+        
+        return view('public.koperasi', compact('anggota', 'distrik'));
     }
 
-    public function koperasiDetail(Koperasi $koperasi)
+    public function koperasiDetail($id)
     {
-        abort_if($koperasi->status_verifikasi !== 'diverifikasi', 404);
-        return view('public.koperasi-detail', compact('koperasi'));
+        // Menampilkan detail Anggota Koperasi
+        $anggota = \App\Models\Anggota::where('status', 'Aktif')->findOrFail($id);
+        return view('public.koperasi-detail', compact('anggota'));
+    }
+    
+    // Halaman Anggota Koperasi yang sudah diterima
+    public function anggotaKoperasi(Request $request)
+    {
+        $query = \App\Models\Anggota::with('user')->where('status', 'Aktif');
+        
+        // Filter pencarian
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nama','like','%'.$request->search.'%')
+                  ->orWhere('nama_usaha','like','%'.$request->search.'%')
+                  ->orWhere('no_anggota','like','%'.$request->search.'%')
+                  ->orWhere('nik','like','%'.$request->search.'%');
+            });
+        }
+        
+        // Filter distrik
+        if ($request->filled('distrik')) {
+            $query->where('distrik', $request->distrik);
+        }
+        
+        // Filter desa
+        if ($request->filled('desa')) {
+            $query->where('desa', $request->desa);
+        }
+        
+        // Filter bidang usaha
+        if ($request->filled('bidang_usaha')) {
+            $query->where('bidang_usaha', $request->bidang_usaha);
+        }
+        
+        // Ambil data anggota
+        $anggota = $query->latest()->paginate(12)->appends($request->query());
+        
+        // Ambil list distrik untuk filter
+        $distrikList = \App\Models\Anggota::where('status', 'Aktif')
+            ->distinct()
+            ->pluck('distrik')
+            ->filter()
+            ->sort()
+            ->values();
+        
+        // Ambil list desa untuk filter (berdasarkan distrik yang dipilih)
+        $desaList = collect();
+        if ($request->filled('distrik')) {
+            $desaList = \App\Models\Anggota::where('status', 'Aktif')
+                ->where('distrik', $request->distrik)
+                ->distinct()
+                ->pluck('desa')
+                ->filter()
+                ->sort()
+                ->values();
+        }
+        
+        // Ambil list bidang usaha untuk filter
+        $bidangUsahaList = \App\Models\Anggota::where('status', 'Aktif')
+            ->distinct()
+            ->pluck('bidang_usaha')
+            ->filter()
+            ->sort()
+            ->values();
+        
+        // Statistik
+        $stats = [
+            'total_anggota' => \App\Models\Anggota::where('status', 'Aktif')->count(),
+            'total_distrik' => \App\Models\Anggota::where('status', 'Aktif')->distinct('distrik')->count(),
+            'total_desa' => \App\Models\Anggota::where('status', 'Aktif')->distinct('desa')->count(),
+        ];
+        
+        // Anggota per distrik
+        $anggotaPerDistrik = \App\Models\Anggota::where('status', 'Aktif')
+            ->selectRaw('distrik, COUNT(*) as total')
+            ->groupBy('distrik')
+            ->orderByDesc('total')
+            ->get();
+        
+        return view('public.anggota-koperasi', compact(
+            'anggota',
+            'distrikList',
+            'desaList',
+            'bidangUsahaList',
+            'stats',
+            'anggotaPerDistrik'
+        ));
     }
     public function downloadPengumuman($id)
-{
-    $pengumuman = \App\Models\Pengumuman::findOrFail($id);
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('public.pengumuman_pdf', ['p' => $pengumuman])
-        ->setPaper('a4', 'portrait');
-    $filename = 'Pengumuman-' . \Str::slug($pengumuman->judul) . '.pdf';
-    return $pdf->download($filename);
-}
+    {
+        $pengumuman = \App\Models\Pengumuman::findOrFail($id);
+        
+        try {
+            // Try to generate PDF with DomPDF
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('public.pengumuman_pdf', ['p' => $pengumuman])
+                ->setPaper('a4', 'portrait');
+            $filename = 'Pengumuman-' . \Str::slug($pengumuman->judul) . '.pdf';
+            return $pdf->download($filename);
+        } catch (\Exception $e) {
+            // If PDF generation fails (e.g., GD extension not installed),
+            // return HTML view that can be printed as PDF by browser
+            return view('public.pengumuman_print', ['p' => $pengumuman]);
+        }
+    }
 
     public function berita(Request $request)
     {
-        $query = Berita::where('status','published');
+        $query = Berita::where('status','publish');
         if ($request->filled('search')) {
             $query->where('judul','like','%'.$request->search.'%');
         }
         $berita  = $query->latest()->paginate(9)->appends($request->query());
-        $populer = Berita::where('status','published')->orderByDesc('views')->take(5)->get();
+        $populer = Berita::where('status','publish')->orderByDesc('views')->take(5)->get();
         return view('public.berita', compact('berita','populer'));
     }
 
     public function beritaDetail(Berita $berita)
     {
-        abort_if($berita->status !== 'published', 404);
+        abort_if($berita->status !== 'publish', 404);
         $berita->increment('views');
-        $lainnya = Berita::where('status','published')
-                         ->where('id','!=',$berita->id)->latest()->take(3)->get();
+        $lainnya = Berita::where('status','publish')
+                         ->where('id','!=',$berita->id)->latest()->take(6)->get();
         return view('public.berita-detail', compact('berita','lainnya'));
     }
 
@@ -188,13 +417,54 @@ class PublicController extends Controller
         return view('public.galeri', compact('galeri', 'tipe'));
     }
 
-    
-    public function pengumuman()
+    public function galeriFoto()
     {
-        $pengumuman = \App\Models\Pengumuman::aktif()
-            ->whereIn("tampil_di", ["halaman","keduanya"])
+        $galeri = Galeri::where('tipe', 'foto')->latest()->paginate(12);
+        return view('public.galeri-foto', compact('galeri'));
+    }
+
+    public function galeriVideo()
+    {
+        $galeri = Galeri::where('tipe', 'video')->latest()->paginate(9);
+        return view('public.galeri-video', compact('galeri'));
+    }
+
+    
+    public function pengumuman(\Illuminate\Http\Request $request)
+    {
+        $pengumuman = \App\Models\Pengumuman::where('is_aktif', true)
+            ->whereIn('tampil_di', ['semua', 'anggota'])
+            ->orderBy('urutan')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
-        return view("public.pengumuman", compact("pengumuman"));
+        
+        // Get selected pengumuman ID from query string
+        $selectedId = $request->get('id');
+        
+        return view("public.pengumuman", compact("pengumuman", "selectedId"));
+    }
+
+    public function pengumumanDetail($id)
+    {
+        $pengumuman = \App\Models\Pengumuman::where('is_aktif', true)
+            ->whereIn('tampil_di', ['semua', 'anggota'])
+            ->findOrFail($id);
+        
+        return response()->json([
+            'id' => $pengumuman->id,
+            'judul' => $pengumuman->judul,
+            'isi' => $pengumuman->isi,
+            'jenis' => $pengumuman->jenis,
+            'tanggal' => $pengumuman->tanggal,
+            'tanggal_formatted' => $pengumuman->tanggal ? \Carbon\Carbon::parse($pengumuman->tanggal)->isoFormat('D MMMM') : null,
+            'hari' => $pengumuman->hari,
+            'jam' => $pengumuman->jam,
+            'tahun' => $pengumuman->tahun,
+            'pembuat' => $pengumuman->pembuat,
+            'foto' => $pengumuman->foto,
+            'link' => $pengumuman->link,
+            'created_at' => $pengumuman->created_at->isoFormat('dddd, D MMMM Y'),
+        ]);
     }
 
     public function kontak()
@@ -209,7 +479,7 @@ class PublicController extends Controller
         $request->validate([
             "nama"    => "required|string|max:100",
             "email"   => "required|email|max:100",
-            "telepon" => "nullable|string|max:20",
+            "no_hp"   => "nullable|string|max:20",
             "subjek"  => "required|string|max:150",
             "pesan"   => "required|string|min:10",
         ], [
@@ -225,15 +495,14 @@ class PublicController extends Controller
         \DB::table("pesan_kontak")->insert([
             "nama"       => $request->nama,
             "email"      => $request->email,
-            "telepon"    => $request->telepon,
+            "no_hp"      => $request->no_hp,
             "subjek"     => $request->subjek,
             "pesan"      => $request->pesan,
+            "ip_address" => $request->ip(),
+            "dibaca"     => false,
             "created_at" => now(),
             "updated_at" => now(),
-
-            
         ]);
-        
 
         return redirect()->route("public.kontak")
                          ->with("success", "Pesan Anda berhasil dikirim! Kami akan menghubungi Anda segera.");

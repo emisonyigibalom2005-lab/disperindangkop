@@ -7,7 +7,8 @@ class Pengumuman extends Model
 {
     protected $table = 'pengumuman';
     protected $fillable = [
-        'judul','isi','jenis','tampil_di','is_aktif',
+        'judul','isi','tanggal','hari','jam','tahun','pembuat',
+        'jenis','tampil_di','is_aktif',
         'mulai_tampil','selesai_tampil','link',
         'foto','video','jenis_video','urutan','user_id'
     ];

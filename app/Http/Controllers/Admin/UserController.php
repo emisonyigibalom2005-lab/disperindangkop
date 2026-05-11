@@ -34,7 +34,7 @@ class UserController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
-            'role'     => 'required|in:admin,petugas,pimpinan,koperasi',
+            'role'     => 'required|in:admin,petugas,pimpinan,anggota',
             'password' => 'required|string|min:8|confirmed',
             'phone'    => 'nullable|string|max:20',
         ]);
@@ -62,15 +62,20 @@ class UserController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,'.$user->id,
-            'role'     => 'required|in:admin,petugas,pimpinan,koperasi',
+            'role'     => 'required|in:admin,petugas,pimpinan,koperasi,anggota',
             'phone'    => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => 'nullable|string|min:6|confirmed',
         ]);
 
         $data = $request->only(['name','email','role','phone']);
+        
+        // Handle is_active checkbox
+        $data['is_active'] = $request->has('is_active') ? true : false;
+        
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
+        
         $user->update($data);
 
         return redirect()->route('admin.users.index')
@@ -92,9 +97,112 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak dapat menghapus akun sendiri.');
         }
-        $user->delete();
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User berhasil dihapus.');
+
+        try {
+            \DB::beginTransaction();
+            
+            // Nonaktifkan foreign key checks
+            \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            // 1. Tabel dengan onDelete cascade (akan otomatis terhapus)
+            // - koperasi (user_id)
+            // - activity_log (user_id)
+            // - chats (pengirim_id, penerima_id)
+            
+            // 2. Tabel dengan onDelete set null (sudah otomatis)
+            // Tapi kita set manual untuk memastikan
+            
+            // Update berita - PENTING: ini yang error
+            if (\Schema::hasTable('berita')) {
+                \DB::table('berita')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            
+            // Update bantuan - PENTING: ini juga bisa error
+            if (\Schema::hasTable('bantuan')) {
+                \DB::table('bantuan')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            
+            // Update galeri
+            if (\Schema::hasTable('galeri')) {
+                \DB::table('galeri')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            
+            // Update pengumuman
+            if (\Schema::hasTable('pengumuman')) {
+                \DB::table('pengumuman')->where('user_id', $user->id)->update(['user_id' => null]);
+            }
+            
+            // Update jadwal
+            if (\Schema::hasTable('jadwal')) {
+                \DB::table('jadwal')->where('created_by', $user->id)->update(['created_by' => null]);
+                \DB::table('jadwal')->where('petugas_id', $user->id)->update(['petugas_id' => null]);
+            }
+            
+            // Update jadwal_distribusi
+            if (\Schema::hasTable('jadwal_distribusi')) {
+                \DB::table('jadwal_distribusi')->where('petugas_id', $user->id)->update(['petugas_id' => null]);
+            }
+            
+            // Update penerima_bantuan
+            if (\Schema::hasTable('penerima_bantuan')) {
+                \DB::table('penerima_bantuan')->where('validated_by', $user->id)->update(['validated_by' => null]);
+            }
+            
+            // Update periode_bantuan
+            if (\Schema::hasTable('periode_bantuan')) {
+                \DB::table('periode_bantuan')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            
+            // Update periode_pendaftaran_koperasi
+            if (\Schema::hasTable('periode_pendaftaran_koperasi')) {
+                \DB::table('periode_pendaftaran_koperasi')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            
+            // Update anggotas
+            if (\Schema::hasTable('anggotas')) {
+                \DB::table('anggotas')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            
+            // Update faqs
+            if (\Schema::hasTable('faqs')) {
+                \DB::table('faqs')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            
+            // Hapus notifikasi (jika ada)
+            if (\Schema::hasTable('notifikasi')) {
+                \DB::table('notifikasi')->where('user_id', $user->id)->delete();
+            }
+            
+            // Hapus foto profil
+            if ($user->profile_photo && \Storage::disk('public')->exists($user->profile_photo)) {
+                \Storage::disk('public')->delete($user->profile_photo);
+            }
+            
+            // Hapus user - ini akan trigger cascade delete untuk:
+            // - koperasi (user_id)
+            // - activity_log (user_id)
+            // - chats (pengirim_id, penerima_id)
+            $user->delete();
+            
+            // Aktifkan kembali foreign key checks
+            \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            
+            \DB::commit();
+            
+            return redirect()->route('admin.users.index')
+                ->with('success', 'User berhasil dihapus.');
+                
+        } catch (\Exception $e) {
+            // Pastikan foreign key checks diaktifkan kembali
+            \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            \DB::rollBack();
+            
+            // Log error untuk debugging
+            \Log::error('Error deleting user ID ' . $user->id . ': ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return back()->with('error', 'Gagal menghapus user. Silakan coba lagi.');
+        }
     }
 
     public function activityLog(Request $request)
@@ -113,6 +221,54 @@ class UserController extends Controller
         $users   = User::orderBy('name')->get();
         $modules = ActivityLog::distinct()->pluck('module');
         return view('admin.users.activity-log', compact('logs', 'users', 'modules'));
+    }
+
+    public function activityLogDetail($id)
+    {
+        $log = ActivityLog::with('user')->findOrFail($id);
+        
+        return response()->json([
+            'id' => $log->id,
+            'user_name' => $log->user->name ?? '-',
+            'user_role' => $log->user->role ?? '-',
+            'action' => $log->action,
+            'module' => $log->module,
+            'description' => $log->description,
+            'ip_address' => $log->ip_address,
+            'user_agent' => $log->user_agent,
+            'created_at' => $log->created_at->format('d M Y, H:i:s'),
+        ]);
+    }
+
+    public function activityLogDestroy($id)
+    {
+        try {
+            $log = ActivityLog::findOrFail($id);
+            $log->delete();
+            
+            // Jika request AJAX, return JSON
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Activity log berhasil dihapus.'
+                ]);
+            }
+            
+            // Jika bukan AJAX, redirect biasa
+            return redirect()->route('admin.users.activityLog')
+                ->with('success', 'Activity log berhasil dihapus.');
+                
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus activity log.'
+                ], 500);
+            }
+            
+            return redirect()->route('admin.users.activityLog')
+                ->with('error', 'Gagal menghapus activity log.');
+        }
     }
 
     public function profile()

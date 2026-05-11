@@ -1,179 +1,405 @@
 @extends('public.layouts.app')
-@section('title','Kontak - DISPERINDAGKOP Tolikara')
-@section('content')
-<div class="page-header">
-<div class="container">
-<h1><i class="fas fa-envelope mr-3"></i>Hubungi Kami</h1>
-<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('public.home') }}">Beranda</a></li><li class="breadcrumb-item active">Kontak</li></ol></nav>
-</div>
-</div>
-<section class="section">
-<div class="container">
-<div class="row">
-<div class="col-lg-4 mb-4">
-<div class="card border-0 shadow-sm h-100" style="border-radius:12px">
-<div class="card-body p-4">
-<h5 class="font-weight-bold mb-4" style="color:var(--primary)">Informasi Kontak</h5>
-<div class="d-flex mb-4">
-<div style="width:45px;height:45px;background:#e8f0ff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:15px"><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i></div>
-<div><strong>Alamat</strong><p class="text-muted mb-0" style="font-size:13px">Jl. Raya Karubaga, Kecamatan Kanggime, Kabupaten Tolikara, Papua Pegunungan 99551</p></div>
-</div>
-<div class="d-flex mb-4">
-<div style="width:45px;height:45px;background:#fff3e0;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:15px"><i class="fas fa-phone" style="color:#f57c00"></i></div>
-<div><strong>Telepon</strong><p class="text-muted mb-0" style="font-size:13px">(0964) 123456</p></div>
-</div>
-<div class="d-flex mb-4">
-<div style="width:45px;height:45px;background:#e8f5e9;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:15px"><i class="fas fa-envelope" style="color:#2e7d32"></i></div>
-<div><strong>Email</strong><p class="text-muted mb-0" style="font-size:13px">info@disperindagkop.tolikara.go.id</p></div>
-</div>
-<div class="d-flex">
-<div style="width:45px;height:45px;background:#fce4ec;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:15px"><i class="fas fa-clock" style="color:#c62828"></i></div>
-<div><strong>Jam Layanan</strong><p class="text-muted mb-0" style="font-size:13px">Senin - Jumat: 08.00 - 16.00 WIT<br>Sabtu - Minggu: Tutup</p></div>
-</div>
-</div>
-</div>
-</div>
-<div class="col-lg-8">
-<div class="card border-0 shadow-sm" style="border-radius:12px">
-<div class="card-header bg-white border-bottom p-4">
-<h5 class="mb-0 font-weight-bold" style="color:var(--primary)"><i class="fas fa-paper-plane mr-2"></i>Kirim Pesan</h5>
-</div>
-<div class="card-body p-4">
-@if(session("success"))
-<div class="alert alert-success alert-dismissible" role="alert" style="border-radius:12px;border:none;background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46;font-weight:600">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <i class="fas fa-check-circle mr-2" style="color:#059669"></i>
-    {{ session("success") }}
-</div>
-@endif
-@if(session("error"))
-<div class="alert alert-danger alert-dismissible" role="alert" style="border-radius:12px;border:none">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <i class="fas fa-exclamation-circle mr-2"></i>
-    {{ session("error") }}
-</div>
-@endif
-<div class="alert alert-info"><i class="fas fa-info-circle mr-2"></i>Untuk layanan lebih cepat, hubungi kami melalui telepon atau email langsung.</div>
+@section('title','Hubungi Kami - DISPERINDAGKOP Tolikara')
 
-<form method="POST" action="{{ route('public.kontak.store') }}">
-@csrf
-<div class="row">
-<div class="col-md-6 mb-3">
-    <label>Nama Lengkap <span class="text-danger">*</span></label>
-    <input type="text" name="nama" class="form-control @error('nama') is-invalid @enderror"
-           placeholder="Nama Anda" value="{{ old('nama') }}" required minlength="3">
-    @error('nama')<div class="invalid-feedback">{{ $message }}</div>@enderror
-</div>
-<div class="col-md-6 mb-3">
-    <label>Email <span class="text-danger">*</span></label>
-    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
-           placeholder="email@anda.com" value="{{ old('email') }}" required>
-    @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-</div>
-</div>
-<div class="mb-3">
-    <label>No. Telepon <small class="text-muted">(min. 10 digit)</small></label>
-    <input type="text" name="telepon" class="form-control @error('telepon') is-invalid @enderror"
-           placeholder="08xx-xxxx-xxxx" value="{{ old('telepon') }}" minlength="10">
-    @error('telepon')<div class="invalid-feedback">{{ $message }}</div>@enderror
-</div>
-<div class="mb-3">
-    <label>Subjek <span class="text-danger">*</span></label>
-    <input type="text" name="subjek" class="form-control @error('subjek') is-invalid @enderror"
-           placeholder="Perihal pesan Anda" value="{{ old('subjek') }}" required>
-    @error('subjek')<div class="invalid-feedback">{{ $message }}</div>@enderror
-</div>
-<div class="mb-3">
-    <label>Pesan <span class="text-danger">*</span></label>
-    <textarea name="pesan" class="form-control @error('pesan') is-invalid @enderror"
-              rows="5" placeholder="Tulis pesan Anda di sini... (min. 10 karakter)"
-              required minlength="10">{{ old('pesan') }}</textarea>
-    @error('pesan')<div class="invalid-feedback">{{ $message }}</div>@enderror
-</div>
-<button type="submit" class="btn btn-primary btn-block py-2">
-    <i class="fas fa-paper-plane mr-2"></i>Kirim Pesan
-</button>
-</form>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
+@push('styles')
+<style>
+/* Hero Section */
+.contact-hero {
+    background: linear-gradient(135deg, #1a3a6e 0%, #2d5aa0 50%, #3d6ab0 100%);
+    padding: 100px 0 80px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
 
-{{-- ═══════════ PETA LEAFLET ═══════════ --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+.contact-hero::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,166,35,0.15), transparent);
+    top: -250px;
+    right: -200px;
+    animation: float 8s ease-in-out infinite;
+}
 
-<section style="padding:30px 0;background:#1a2942;">
-<div id="peta-disperindagkop" style="height:420px;width:100%;z-index:1"></div>
-</section>
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Koordinat Kantor DISPERINDAGKOP Tolikara (Karubaga)
-    var kantorLat = -3.610, kantorLng = 138.462;
+/* Contact Cards */
+.contact-info-card {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    transition: all 0.4s;
+    height: 100%;
+    border: 2px solid transparent;
+}
 
-    var map = L.map('peta-disperindagkop').setView([kantorLat, kantorLng], 10);
+.contact-info-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(26,58,110,0.15);
+    border-color: #f5a623;
+}
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18
-    }).addTo(map);
+.contact-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+}
 
-    // Icon kantor (biru)
-    var iconKantor = L.divIcon({
-        className: '',
-        html: '<div style="background:#1a3a6e;color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><i class="fas fa-building"></i> DISPERINDAGKOP</div>',
-        iconAnchor: [75, 30]
-    });
+.contact-info-card:hover .contact-icon {
+    transform: scale(1.1) rotate(5deg);
+}
 
-    // Icon Koperasi (kuning)
-    var iconKoperasi = L.divIcon({
-        className: '',
-        html: '<div style="background:#f5a623;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #fff"><i class="fas fa-store"></i></div>',
-        iconAnchor: [14, 14]
-    });
+.contact-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a3a6e;
+    margin-bottom: 12px;
+}
 
-    // Marker Kantor
-    L.marker([kantorLat, kantorLng], {icon: iconKantor})
-        .addTo(map)
-        .bindPopup('<b>Kantor DISPERINDAGKOP</b><br>Jl. Raya Karubaga, Kab. Tolikara<br>Papua Pegunungan<br><small>Senin-Jumat: 08.00-16.00 WIT</small>');
+.contact-text {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0;
+}
 
-    // Sebaran Koperasi per distrik Tolikara
-    var distrikKoperasi = [
-        {nama:'Bokondini',      lat:-3.648, lng:138.672, jml:5},
-        {nama:'Karubaga',       lat:-3.610, lng:138.462, jml:4},
-        {nama:'Kembu',          lat:-3.580, lng:138.520, jml:2},
-        {nama:'Bewani',         lat:-3.700, lng:138.395, jml:1},
-        {nama:'Kanggime',       lat:-3.540, lng:138.340, jml:1},
-        {nama:'Bokoneri',       lat:-3.670, lng:138.500, jml:1},
-        {nama:'Nunggawi',       lat:-3.625, lng:138.580, jml:1},
-        {nama:'Goyage',         lat:-3.590, lng:138.430, jml:1},
-    ];
+/* Form Card */
+.form-card {
+    background: white;
+    border-radius: 24px;
+    padding: 50px 80px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    margin-top: 40px;
+}
 
-    distrikKoperasi.forEach(function(d) {
-        var marker = L.marker([d.lat, d.lng], {icon: iconKoperasi}).addTo(map);
-        marker.bindPopup(
-            '<b>Distrik ' + d.nama + '</b><br>' +
-            '<i class="fas fa-store mr-1"></i><b>' + d.jml + ' Koperasi</b> terdaftar<br>' +
-            '<small>Kabupaten Tolikara</small>'
-        );
-    });
+.form-label {
+    font-weight: 700;
+    color: #1a3a6e;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: block;
+}
 
-    // Legenda
-    var legenda = L.control({position: 'bottomright'});
-    legenda.onAdd = function() {
-        var div = L.DomUtil.create('div');
-        div.style.cssText = 'background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.2);font-size:12px;line-height:1.8';
-        div.innerHTML = '<b style="color:#1a3a6e">Keterangan</b><br>' +
-            '<span style="background:#1a3a6e;color:#fff;padding:2px 7px;border-radius:4px;font-size:11px">&#9632;</span> Kantor DISPERINDAGKOP<br>' +
-            '<span style="background:#f5a623;color:#fff;padding:2px 7px;border-radius:4px;font-size:11px">&#9632;</span> Sebaran Koperasi';
-        return div;
-    };
-    legenda.addTo(map);
-});
-</script>
+.form-control-modern {
+    border: 2px solid #e0e7ff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 15px;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.form-control-modern:focus {
+    border-color: #1a3a6e;
+    box-shadow: 0 0 0 4px rgba(26,58,110,0.1);
+    outline: none;
+}
+
+.form-control-modern::placeholder {
+    color: #cbd5e1;
+}
+
+.btn-send {
+    background: linear-gradient(135deg, #1a3a6e, #2d5aa0);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 40px;
+    font-size: 16px;
+    font-weight: 700;
+    transition: all 0.3s;
+    box-shadow: 0 8px 20px rgba(26,58,110,0.3);
+    width: 100%;
+}
+
+.btn-send:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(26,58,110,0.4);
+    background: linear-gradient(135deg, #2d5aa0, #1a3a6e);
+    color: white;
+}
+
+.alert-modern {
+    border-radius: 16px;
+    border: none;
+    padding: 18px 24px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.alert-success-modern {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.alert-info-modern {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+}
+
+/* Animation */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.contact-info-card:nth-child(1) { animation-delay: 0.1s; }
+.contact-info-card:nth-child(2) { animation-delay: 0.2s; }
+.contact-info-card:nth-child(3) { animation-delay: 0.3s; }
+.contact-info-card:nth-child(4) { animation-delay: 0.4s; }
+
+@media (max-width: 1200px) {
+    .container-fluid {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .form-card {
+        padding: 40px 35px;
+    }
+    .container-fluid {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-hero {
+        padding: 60px 0 40px;
+    }
+    
+    .form-card {
+        padding: 30px 20px;
+    }
+}
+</style>
 @endpush
+
+@section('content')
+{{-- Hero Section --}}
+<div class="contact-hero">
+    <div class="container" style="position:relative;z-index:1">
+        <div class="text-center">
+            <div style="width:90px;height:90px;background:linear-gradient(135deg,rgba(245,166,35,0.25),rgba(251,191,36,0.25));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;backdrop-filter:blur(15px);border:3px solid rgba(255,255,255,0.2)">
+                <i class="fas fa-envelope fa-2x" style="color:#f5a623"></i>
+            </div>
+            <h1 style="font-size:2.8rem;font-weight:900;margin-bottom:15px;text-shadow:0 4px 20px rgba(0,0,0,0.3)">
+                📧 Hubungi Kami
+            </h1>
+            <p style="font-size:1.15rem;opacity:0.95;max-width:650px;margin:0 auto">
+                Kami siap membantu Anda. Hubungi kami melalui informasi kontak di bawah atau kirim pesan langsung
+            </p>
+        </div>
+    </div>
+</div>
+
+{{-- Main Content --}}
+<section style="padding:80px 0;background:linear-gradient(to bottom, #f8f9fa, #ffffff)">
+    <div class="container-fluid" style="max-width:1400px;padding-left:40px;padding-right:40px">
+        
+        {{-- Contact Info Cards --}}
+        <div class="row mb-5 g-4" style="margin-top:-80px;position:relative;z-index:2">
+            <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div class="contact-info-card fade-in-up">
+                    <div class="contact-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:white">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h5 class="contact-title">Alamat Kantor</h5>
+                    <p class="contact-text">
+                        Jl. Raya Karubaga, Kecamatan Kanggime, Kabupaten Tolikara, Papua Pegunungan 99551
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div class="contact-info-card fade-in-up">
+                    <div class="contact-icon" style="background:linear-gradient(135deg,#10b981,#059669);color:white">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h5 class="contact-title">Telepon</h5>
+                    <p class="contact-text">
+                        <a href="tel:0964123456" style="color:#10b981;text-decoration:none;font-weight:600">(0964) 123456</a>
+                        <br>
+                        <small style="color:#94a3b8">Senin - Jumat</small>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div class="contact-info-card fade-in-up">
+                    <div class="contact-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h5 class="contact-title">Email</h5>
+                    <p class="contact-text">
+                        <a href="mailto:info@disperindagkop.tolikara.go.id" style="color:#f59e0b;text-decoration:none;font-weight:600;word-break:break-all">
+                            info@disperindagkop.tolikara.go.id
+                        </a>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div class="contact-info-card fade-in-up">
+                    <div class="contact-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h5 class="contact-title">Jam Layanan</h5>
+                    <p class="contact-text">
+                        <strong>Senin - Jumat</strong><br>
+                        08:00 - 16:00 WIT<br>
+                        <small style="color:#94a3b8">Sabtu - Minggu: Tutup</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Contact Form --}}
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="form-card fade-in-up">
+                    <div class="text-center mb-4">
+                        <h2 style="font-size:2rem;font-weight:800;color:#1a3a6e;margin-bottom:12px">
+                            <i class="fas fa-paper-plane mr-2" style="color:#f5a623"></i>
+                            Kirim Pesan
+                        </h2>
+                        <p style="color:#64748b;font-size:15px;margin:0">
+                            Isi formulir di bawah ini dan kami akan segera merespons pesan Anda
+                        </p>
+                    </div>
+
+                    @if(session("success"))
+                    <div class="alert-modern alert-success-modern">
+                        <i class="fas fa-check-circle" style="font-size:24px"></i>
+                        <div>{{ session("success") }}</div>
+                    </div>
+                    @endif
+
+                    @if(session("error"))
+                    <div class="alert-modern" style="background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b">
+                        <i class="fas fa-exclamation-circle" style="font-size:24px"></i>
+                        <div>{{ session("error") }}</div>
+                    </div>
+                    @endif
+
+                    <div class="alert-info-modern alert-modern mb-4">
+                        <i class="fas fa-info-circle" style="font-size:24px"></i>
+                        <div>Untuk layanan lebih cepat, hubungi kami melalui telepon atau email langsung</div>
+                    </div>
+
+                    <form method="POST" action="{{ route('public.kontak.store') }}">
+                        @csrf
+                        <div class="row">
+                            <div class="col-lg-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-user mr-2" style="color:#f5a623"></i>
+                                    Nama Lengkap <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="nama" 
+                                       class="form-control-modern @error('nama') is-invalid @enderror"
+                                       placeholder="Masukkan nama lengkap Anda" 
+                                       value="{{ old('nama') }}" 
+                                       required 
+                                       minlength="3">
+                                @error('nama')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            
+                            <div class="col-lg-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope mr-2" style="color:#f5a623"></i>
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" 
+                                       name="email" 
+                                       class="form-control-modern @error('email') is-invalid @enderror"
+                                       placeholder="email@anda.com" 
+                                       value="{{ old('email') }}" 
+                                       required>
+                                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-phone mr-2" style="color:#f5a623"></i>
+                                    No. Telepon <small class="text-muted">(opsional)</small>
+                                </label>
+                                <input type="text" 
+                                       name="no_hp" 
+                                       class="form-control-modern @error('no_hp') is-invalid @enderror"
+                                       placeholder="08xx-xxxx-xxxx" 
+                                       value="{{ old('no_hp') }}" 
+                                       minlength="10">
+                                @error('no_hp')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            
+                            <div class="col-lg-6 mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-tag mr-2" style="color:#f5a623"></i>
+                                    Subjek <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="subjek" 
+                                       class="form-control-modern @error('subjek') is-invalid @enderror"
+                                       placeholder="Perihal pesan Anda" 
+                                       value="{{ old('subjek') }}" 
+                                       required>
+                                @error('subjek')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-comment-alt mr-2" style="color:#f5a623"></i>
+                                Pesan <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="pesan" 
+                                      class="form-control-modern @error('pesan') is-invalid @enderror"
+                                      rows="7" 
+                                      placeholder="Tulis pesan Anda di sini... (minimal 10 karakter)"
+                                      required 
+                                      minlength="10">{{ old('pesan') }}</textarea>
+                            @error('pesan')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <button type="submit" class="btn-send">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Kirim Pesan Sekarang
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

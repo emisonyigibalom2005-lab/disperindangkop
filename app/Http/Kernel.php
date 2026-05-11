@@ -55,5 +55,6 @@ class Kernel extends HttpKernel
 
         // ✅ Tambahan untuk role
         'role'             => \App\Http\Middleware\CheckRole::class,
+        'permission'       => \App\Http\Middleware\CheckPermission::class,
     ];
 }

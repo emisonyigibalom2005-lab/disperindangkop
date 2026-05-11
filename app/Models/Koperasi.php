@@ -11,7 +11,7 @@ class Koperasi extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'no_registrasi', 'no_ktp', 'nama_pemilik', 'nama_usaha',
+        'user_id', 'periode_pendaftaran_koperasi_id', 'no_registrasi', 'no_ktp', 'nama_pemilik', 'nama_usaha',
         'jenis_usaha', 'kategori', 'alamat', 'distrik', 'kelurahan',
         'no_telp', 'email', 'modal_usaha', 'omset_per_bulan', 'jumlah_karyawan',
         'status_verifikasi', 'status_usaha', 'catatan_verifikasi',
@@ -26,6 +26,7 @@ class Koperasi extends Model
 
     // ── Relasi ──────────────────────────────────────────────
     public function user()        { return $this->belongsTo(User::class); }
+    public function periodePendaftaranKoperasi() { return $this->belongsTo(PeriodePendaftaranKoperasi::class, 'periode_pendaftaran_koperasi_id'); }
     public function verifiedBy()  { return $this->belongsTo(User::class, 'verified_by'); }
     public function dokumen()     { return $this->hasMany(DokumenKoperasi::class, 'koperasi_id'); }
     public function penerimaBantuan() { return $this->hasMany(PenerimaBantuan::class, 'koperasi_id'); }
@@ -66,10 +67,33 @@ class Koperasi extends Model
 
     public static function generateNoRegistrasi(): string
     {
-        $year    = date('Y');
-        $lastId  = static::whereYear('created_at', $year)->max('id') ?? 0;
-        $seq     = str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
-        return "KOPERASI-{$year}-{$seq}";
+        $year = date('Y');
+        
+        // Cari nomor registrasi terakhir di tahun ini
+        $lastKoperasi = static::whereYear('created_at', $year)
+            ->where('no_registrasi', 'like', "KOPERASI-{$year}-%")
+            ->orderBy('no_registrasi', 'desc')
+            ->first();
+        
+        if ($lastKoperasi && preg_match('/KOPERASI-\d{4}-(\d{4})/', $lastKoperasi->no_registrasi, $matches)) {
+            $lastNumber = (int) $matches[1];
+            $seq = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            // Jika tidak ada data tahun ini, mulai dari 0001
+            $seq = '0001';
+        }
+        
+        $noRegistrasi = "KOPERASI-{$year}-{$seq}";
+        
+        // Double check: pastikan nomor belum ada di database
+        $attempt = 0;
+        while (static::where('no_registrasi', $noRegistrasi)->exists() && $attempt < 100) {
+            $seq = str_pad((int)$seq + 1, 4, '0', STR_PAD_LEFT);
+            $noRegistrasi = "KOPERASI-{$year}-{$seq}";
+            $attempt++;
+        }
+        
+        return $noRegistrasi;
     }
 
     // ── Distrik Tolikara ──────────────────────────────────

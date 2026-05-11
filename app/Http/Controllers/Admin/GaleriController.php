@@ -8,10 +8,19 @@ use App\Models\Galeri;
 
 class GaleriController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $galeri = Galeri::orderBy('urutan', 'asc')->paginate(8);
-        return view('admin.galeri.index', compact('galeri'));
+        $tipe = $request->get('tipe', 'all'); // all, foto, video
+        
+        $query = Galeri::with('createdBy');
+        
+        if ($tipe !== 'all') {
+            $query->where('tipe', $tipe);
+        }
+        
+        $galeri = $query->orderBy('urutan', 'asc')->paginate(10);
+        
+        return view('admin.galeri.index', compact('galeri', 'tipe'));
     }
 
     public function create()
@@ -19,26 +28,61 @@ class GaleriController extends Controller
         return view('admin.galeri.create');
     }
 
+    public function createFoto()
+    {
+        return view('admin.galeri.create-foto');
+    }
+
+    public function createVideo()
+    {
+        return view('admin.galeri.create-video');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
-            'judul' => 'required|max:255',
-            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'kategori' => 'required',
-            'urutan' => 'nullable|integer',
-            'is_active' => 'required|boolean'
+            'tipe' => 'required|in:foto,video',
+            'foto' => $request->tipe === 'foto' ? 'required|image|mimes:jpg,jpeg,png,gif|max:2048' : 'nullable',
+            'video_url' => $request->tipe === 'video' ? 'required|url' : 'nullable',
+            'judul' => $request->tipe === 'video' ? 'required|max:255' : 'nullable',
+            'deskripsi' => 'nullable',
+            'kategori' => 'nullable|string'
         ]);
 
-        $data = $request->all();
+        $data = [
+            'tipe' => $request->tipe,
+            'deskripsi' => $request->deskripsi,
+            'kategori' => $request->kategori ?? 'kegiatan',
+            'urutan' => Galeri::max('urutan') + 1,
+            'is_active' => true,
+            'created_by' => auth()->id()
+        ];
 
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('galeri', 'public');
+        if ($request->tipe === 'foto' && $request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $data['foto'] = $file->storeAs('galeri', $filename, 'public');
+            
+            // Auto-generate judul dari nama file (tanpa extension dan timestamp)
+            $originalName = $file->getClientOriginalName();
+            $data['judul'] = pathinfo($originalName, PATHINFO_FILENAME);
+            
+        } elseif ($request->tipe === 'video') {
+            $data['judul'] = $request->judul;
+            $data['video_url'] = $request->video_url;
+            // Generate thumbnail from video URL if YouTube
+            if (preg_match('/youtube\.com\/watch\?v=([^&]+)/', $request->video_url, $matches)) {
+                $data['foto'] = 'https://img.youtube.com/vi/' . $matches[1] . '/maxresdefault.jpg';
+            } elseif (preg_match('/youtu\.be\/([^?]+)/', $request->video_url, $matches)) {
+                $data['foto'] = 'https://img.youtube.com/vi/' . $matches[1] . '/maxresdefault.jpg';
+            }
         }
 
         Galeri::create($data);
 
+        $message = $request->tipe === 'foto' ? 'Foto berhasil ditambahkan ke galeri' : 'Video berhasil ditambahkan ke galeri';
         return redirect()->route('admin.galeri.index')
-            ->with('success', 'Data berhasil ditambahkan');
+            ->with('success', $message);
     }
 
     public function show(Galeri $galeri)
@@ -48,23 +92,62 @@ class GaleriController extends Controller
 
     public function edit(Galeri $galeri)
     {
-        return view('admin.galeri.edit', compact('galeri'));
+        if ($galeri->tipe === 'foto') {
+            return view('admin.galeri.edit-foto', compact('galeri'));
+        } else {
+            return view('admin.galeri.edit-video', compact('galeri'));
+        }
     }
 
     public function update(Request $request, Galeri $galeri)
     {
         $request->validate([
-            'judul' => 'required|max:255',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'kategori' => 'required',
+            'tipe' => 'required|in:foto,video',
+            'foto' => $request->tipe === 'foto' ? 'nullable|image|mimes:jpg,jpeg,png|max:2048' : 'nullable',
+            'video_url' => $request->tipe === 'video' ? 'required|url' : 'nullable',
+            'judul' => $request->tipe === 'video' ? 'required|max:255' : 'nullable',
+            'deskripsi' => 'nullable',
+            'kategori' => 'nullable|string',
             'urutan' => 'nullable|integer',
-            'is_active' => 'required|boolean'
+            'is_active' => 'nullable|boolean'
         ]);
 
-        $data = $request->all();
+        $data = [
+            'tipe' => $request->tipe,
+            'deskripsi' => $request->deskripsi,
+            'kategori' => $request->kategori ?? 'kegiatan',
+            'urutan' => $request->urutan ?? $galeri->urutan,
+            'is_active' => $request->has('is_active') ? $request->is_active : true
+        ];
 
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('galeri', 'public');
+        if ($request->tipe === 'foto') {
+            if ($request->hasFile('foto')) {
+                // Hapus foto lama jika ada
+                if ($galeri->foto && \Storage::disk('public')->exists($galeri->foto)) {
+                    \Storage::disk('public')->delete($galeri->foto);
+                }
+                
+                $file = $request->file('foto');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $data['foto'] = $file->storeAs('galeri', $filename, 'public');
+                
+                // Auto-generate judul dari nama file baru
+                $originalName = $file->getClientOriginalName();
+                $data['judul'] = pathinfo($originalName, PATHINFO_FILENAME);
+            } else {
+                // Jika tidak upload foto baru, pertahankan judul lama
+                $data['judul'] = $galeri->judul;
+            }
+            $data['video_url'] = null;
+        } elseif ($request->tipe === 'video') {
+            $data['judul'] = $request->judul;
+            $data['video_url'] = $request->video_url;
+            // Generate thumbnail from video URL if YouTube
+            if (preg_match('/youtube\.com\/watch\?v=([^&]+)/', $request->video_url, $matches)) {
+                $data['foto'] = 'https://img.youtube.com/vi/' . $matches[1] . '/maxresdefault.jpg';
+            } elseif (preg_match('/youtu\.be\/([^?]+)/', $request->video_url, $matches)) {
+                $data['foto'] = 'https://img.youtube.com/vi/' . $matches[1] . '/maxresdefault.jpg';
+            }
         }
 
         $galeri->update($data);
@@ -75,13 +158,22 @@ class GaleriController extends Controller
 
     public function destroy(Galeri $galeri)
     {
-        if ($galeri->foto && \Storage::disk('public')->exists($galeri->foto)) {
-            \Storage::disk('public')->delete($galeri->foto);
+        try {
+            // Hapus file foto jika ada dan bukan URL eksternal
+            if ($galeri->foto && !filter_var($galeri->foto, FILTER_VALIDATE_URL)) {
+                if (\Storage::disk('public')->exists($galeri->foto)) {
+                    \Storage::disk('public')->delete($galeri->foto);
+                }
+            }
+
+            // Hapus data dari database
+            $galeri->delete();
+
+            return redirect()->route('admin.galeri.index', ['tipe' => $galeri->tipe])
+                ->with('success', ucfirst($galeri->tipe) . ' berhasil dihapus dari galeri');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.galeri.index')
+                ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
-
-        $galeri->delete();
-
-        return redirect()->route('admin.galeri.index')
-            ->with('success', 'Data berhasil dihapus');
     }
 }

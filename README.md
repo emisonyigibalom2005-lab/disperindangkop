@@ -381,3 +381,4 @@ Proyek ini dilisensikan di bawah [MIT License](LICENSE).
 <p align="center">
   <sub>© 2026 DISPERINDAGKOP Kabupaten Tolikara. All rights reserved.</sub>
 </p>
+"# disperindangkop" 
